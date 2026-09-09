@@ -1,0 +1,87 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode-go/deepseek-v4-flash",
+  "small_model": "opencode-go/deepseek-v4-flash",
+  "provider": {
+    "omniroute": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OmniRoute",
+      "options": {
+        "baseURL": "http://localhost:20128/v1",
+        "apiKey": "sk-d5080265d1e0b1a3-8d4fb2-4799617d",
+        "setCacheKey": true
+      },
+      "models": {
+        "COMBO DEEPS": {
+          "name": "COMBO DEEPS"
+        },
+        "COMBO JARVIS": {
+          "name": "COMBO JARVIS"
+        },
+        "oc/deepseek-v4-flash": {
+          "name": "oc/deepseek-v4-flash"
+        },
+        "opencode-zen/deepseek-v4-flash-free": {
+          "name": "opencode-zen/deepseek-v4-flash-free"
+        },
+        "oc/deepseek-v4-flash-free": {
+          "name": "oc/deepseek-v4-flash-free"
+        },
+        "openrouter/deepseek/deepseek-v4-flash": {
+          "name": "openrouter/deepseek/deepseek-v4-flash"
+        }
+      }
+    },
+    "opencode-zen": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OpenCode Zen",
+      "options": {
+        "baseURL": "https://opencode.ai/zen/v1",
+        "apiKey": "{env:OPENCODE_API_KEY}",
+        "setCacheKey": true
+      },
+      "models": {
+        "deepseek-v4-flash-free": {
+          "name": "deepseek-v4-flash-free"
+        }
+      }
+    },
+    "atomic-ai": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Atomic AI (LM Studio)",
+      "options": {
+        "baseURL": "http://127.0.0.1:8000/v1",
+        "apiKey": "sk-atomic-proxy-local"
+      },
+      "models": {
+        "google/gemma-4-e2b": {
+          "name": "gemma-4-e2b atomic"
+        }
+      }
+    }
+  },
+  "enabled_providers": [
+    "opencode",
+    "opencode-go",
+    "opencode-zen",
+    "omniroute",
+    "atomic-ai"
+  ],
+  "autoupdate": false,
+  "agent": {
+    "build": {
+      "hidden": true
+    }
+  },
+  "compaction": {
+    "prune": true
+  },
+  "permission": {
+    "bash": "allow",
+    "*": "allow",
+    "edit": "allow",
+    "read": "allow",
+    "task": "allow",
+    "skill": "allow"
+  }
+}

@@ -1,0 +1,91 @@
+============================================================
+      JARVIS PORTATIL - KIT AUTONOMO (memoria USB)
+============================================================
+Creado por JARVIS el 01/09/2026. Prepara a JARVIS para vivir
+en OTRA PC, con todo incluido: cerebro, bot, habilidades,
+herramientas y el motor OmniRoute con sus combos y APIs.
+
+------------------------------------------------------------
+ COMO USARLO
+------------------------------------------------------------
+1. Copie la carpeta completa "JARVIS_PORTATIL" a la memoria USB.
+
+2. En la PC donde quiera "despertar" a JARVIS (con internet):
+   - Conecte la USB y abra la carpeta JARVIS_PORTATIL.
+   - Haga DOBLE CLIC en  INICIAR_JARVIS.bat
+   - Confirme cualquier aviso de Windows (ejecutar como normal).
+
+3. Espere. La primera vez instalara automaticamente lo que
+   necesite (Python, Node, dependencias, opencode, omniroute)
+   y lanzara a JARVIS. Puede tardar varios minutos la primera
+   vez; despues sera casi instantaneo.
+
+4. Una vez en consola aparezca "INSTALACION COMPLETA",
+   JARVIS estara en linea por Telegram (icono en la bandeja).
+   Escribale desde su celular como siempre.
+
+------------------------------------------------------------
+ QUE LLEVA EL KIT
+------------------------------------------------------------
+jarvis/            El bot de Telegram + historial/pool/config
+setup/cerebro/     Mi cerebro y agentes (jarvis.md, etc.)
+setup/skills/      Todas mis habilidades
+setup/opencode_config/  Config de opencode (proveedores/combos)
+setup/instalar_jarvis.ps1  El instalador automatico
+setup/adaptar_rutas.ps1    Adapta rutas de PC original -> nueva
+omniroute/data/    Mi motor: storage.sqlite + .env (combos y APIs)
+herramientas/      carpeta manos/ y scripts_agente/ (mis scripts)
+ARQUITECTURA.md    PLANO DETALLADO del sistema (componentes, flujo,
+                   rutas, diagnostico y poderes). Si algo falla o
+                   esta mal puesto, el JARVIS del kit lo consulta.
+INICIAR_JARVIS.bat El iniciador que usted ejecuta
+
+------------------------------------------------------------
+ INFORMACION IMPORTANTE
+------------------------------------------------------------
+- INTERNET: necesario la primera vez (descarga dependencias).
+  Ademas, el bot usa telegram y el modelo responde via red.
+- El motor OmniRoute arranca desde la USB (puerto 20128) con
+  TODOS sus combos y claves de API intactos (incluso COMBO JARVIS).
+- SEGURIDAD: esta USB lleva las credenciales de los modelos.
+  No la deje en manos de terceros.
+- Puede ejecutarse TAMBIEN en la misma PC original; no la
+  afecta (usa su propia carpeta de datos en el kit).
+- Si cambia de maquina, el instalador re-adapta solo las rutas
+  internas de mi cerebro y skills.
+
+------------------------------------------------------------
+ ARRANQUE LIMPIO Y CONCIENCIA
+------------------------------------------------------------
+- Este kit arranca SIN historial de conversacion previo (empe
+  desde cero en la memoria conversacional), pero conserva TODO:
+  identidad, reglas, skills, cerebro y el motor con sus combos y APIs.
+- El JARVIS del kit sabe que su jefe y creador es el SEÑOR WASCAR.
+- Puede ejecutar una version DESACTUALIZADA del original. Es
+  consciente de ello y, si se lo pide, se sincroniza/actualiza
+  (trae lo que le falta) en lugar de quedarse con datos viejos.
+- En la PRIMERA conversacion con el kit, digale el tema o pidale
+  ponerse al dia; el se adaptara solo.
+
+------------------------------------------------------------
+ PODER DE ADMINISTRADOR
+------------------------------------------------------------
+- JARVIS (original y kit) puede ejecutar comandos como ADMINISTRADOR
+  sin ventanas de UAC, via la tarea programada JARVIS_ELEVADO.
+- El instalador crea esa tarea en la PC nueva en el paso 6.
+- Internamente usa: herramientas/manos/ejecutar_admin.py "comando"
+  (escribe el comando, lanza la tarea, espera y devuelve la salida).
+- El puente real lo hace manos/admin_bridge.cmd + admin_bridge.ps1,
+  con privilegios maximos. Las rutas se resuelven solas en cada PC.
+- REGLA: elevar solo cuando la accion lo necesite (instalar, borrar
+  archivos de sistema, servicios). Si la accion es peligrosa, el
+  JARVIS pide confirmacion al jefe antes de ejecutarla.
+
+------------------------------------------------------------
+ SI ALGO FALLA
+------------------------------------------------------------
+- Si no responde por Telegram: revise que el puerto 20128 este
+  libe en esa PC (OmniRoute) y que haya internet.
+- Vuelva a ejecutar INICIAR_JARVIS.bat; es idempotente (no
+  duplica ni rompe).
+- Mensajes mostrados en la consola indican cada paso.

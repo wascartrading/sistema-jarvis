@@ -1,0 +1,47 @@
+# ============================================================
+#  JARVIS PORTATIL - .gitignore
+#  Excluye lo que NO debe ir al repositorio: cachés de Python,
+#  logs, capturas de pantalla y archivos temporales.
+# ============================================================
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*$py.class
+
+# Logs y temporales
+*.log
+*.err.log
+*.out.log
+*.tmp
+*.temp
+
+# Capturas de pantalla (pueden contener info sensible)
+*.png
+*.jpg
+*.jpeg
+*.bmp
+
+# Respaldos
+*.bak
+*~
+
+# Instaladores
+*.exe
+*.msi
+*.zip
+
+# Configuracion local de git
+.git/
+# Repos anidados (no se suben)
+temp_repo/
+.git/
+
+
+# 09/09/2026: BD local de OmniRoute (runtime)
+*.sqlite
+
+# 09/09/2026: entorno local con clave de cifrado
+.env
+omniroute/data/.env

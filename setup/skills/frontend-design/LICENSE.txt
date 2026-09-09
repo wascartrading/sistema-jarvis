@@ -1,0 +1,7 @@
+TERMINOS DE USO - SKILL frontend-design
+=======================================
+
+Skill compartida por el usuario para uso EXCLUSIVO dentro del proyecto JARVIS
+(PC de Wascar). Se usa unicamente como apoyo de diseno web al crear paginas o
+interfaces web. No se redistribuye, vende ni integra en otros proyectos sin
+permiso explicito del usuario.

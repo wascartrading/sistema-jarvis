@@ -1,0 +1,5 @@
+# Dependencias Python del bot de Telegram de JARVIS (kit portatil)
+python-telegram-bot>=21.0
+Pillow>=10.0
+pystray>=0.19
+httpx>=0.27

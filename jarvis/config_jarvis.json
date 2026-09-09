@@ -1,0 +1,8 @@
+{
+  "token": "8306558302:AAFNm0IH6Hc-nldoLgYm6PzUZGXSAq0Vz54",
+  "chat_id": "8456515934",
+  "agente": "jarvis",
+  "modelo": "omniroute/COMBO JARVIS",
+  "timeout": 100,
+  "autostart": true
+}

@@ -1,0 +1,86 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode-go/deepseek-v4-flash",
+  "provider": {
+    "omniroute": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OmniRoute",
+      "options": {
+        "baseURL": "http://localhost:20128/v1",
+        "apiKey": "sk-d5080265d1e0b1a3-8d4fb2-4799617d"
+      },
+      "models": {
+        "COMBO DEEPS": {
+          "name": "COMBO DEEPS"
+        },
+        "COMBO JARVIS": {
+          "name": "COMBO JARVIS"
+        },
+        "oc/deepseek-v4-flash": {
+          "name": "oc/deepseek-v4-flash"
+        },
+        "opencode-zen/deepseek-v4-flash-free": {
+          "name": "opencode-zen/deepseek-v4-flash-free"
+        },
+        "oc/deepseek-v4-flash-free": {
+          "name": "oc/deepseek-v4-flash-free"
+        }
+      }
+    },
+    "opencode-zen": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "OpenCode Zen",
+      "options": {
+        "baseURL": "https://opencode.ai/zen/v1",
+        "apiKey": "{env:OPENCODE_API_KEY}"
+      },
+      "models": {
+        "deepseek-v4-flash-free": {
+          "name": "deepseek-v4-flash-free"
+        }
+      }
+    },
+    "deepseek": {
+      "name": "deepseek",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://api.deepseek.com/v1"
+      },
+      "models": {
+        "deepseek-v4-flash": {
+          "name": "deepseek-v4-flash"
+        }
+      }
+    },
+    "qwen": {
+      "name": "qwen 3.8",
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://api.tokenrouter.com/v1"
+      },
+      "models": {
+        "qwen/qwen3.8-max-free": {
+          "name": "qwen"
+        }
+      }
+    }
+  },
+  "enabled_providers": [
+    "opencode",
+    "opencode-go",
+    "opencode-zen",
+    "omniroute"
+  ],
+  "small_model": "opencode-go/deepseek-v4-flash",
+  "disabled_providers": [
+    "opencode-zen"
+  ],
+  "permission": {
+    "bash": "allow",
+    "*": "allow",
+    "edit": "allow",
+    "read": "allow",
+    "task": "allow",
+    "skill": "allow"
+  }
+}
