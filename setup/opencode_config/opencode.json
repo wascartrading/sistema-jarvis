@@ -16,7 +16,15 @@
           "name": "COMBO DEEPS"
         },
         "COMBO JARVIS": {
-          "name": "COMBO JARVIS"
+          "name": "COMBO JARVIS",
+          "attachment": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
+        },
+        "COMBO TOKEN HARBOR": {
+          "name": "COMBO TOKEN HARBOR"
         },
         "oc/deepseek-v4-flash": {
           "name": "oc/deepseek-v4-flash"
@@ -58,6 +66,22 @@
           "name": "gemma-4-e2b atomic"
         }
       }
+    },
+    "cerebras": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Cerebras",
+      "options": {
+        "baseURL": "http://127.0.0.1:20129/v1",
+        "apiKey": "sk-proxy-cerebras-local"
+      },
+      "models": {
+        "qwen-3.8-27b": {
+          "name": "Qwen 3.8 27B"
+        },
+        "gpt-oss-120b": {
+          "name": "GPT-OSS 120B"
+        }
+      }
     }
   },
   "enabled_providers": [
@@ -65,7 +89,11 @@
     "opencode-go",
     "opencode-zen",
     "omniroute",
-    "atomic-ai"
+    "atomic-ai",
+    "cerebras"
+  ],
+  "plugin": [
+    "context-mode"
   ],
   "autoupdate": false,
   "agent": {
