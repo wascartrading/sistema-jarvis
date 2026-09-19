@@ -1,0 +1,1 @@
+"""Cerebro de JARVIS: red neuronal profunda con aprendizaje continuo."""

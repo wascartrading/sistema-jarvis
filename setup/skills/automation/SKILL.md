@@ -1,6 +1,6 @@
 ---
 name: automation
-description: Automatizacion y sistemas autonomos en la PC del usuario (Windows): encadenar tareas, programar procesos, vigilar carpetas, ejecutar comandos, crear agentes que trabajan solos. Usar cuando el usuario pida automatizar algo, programar tareas, vigilar carpetas o construir sistemas autonomos.
+description: Automatizacion en Windows: tareas programadas, vigilar carpetas, encadenar pasos y agentes autonomos.
 ---
 
 # Automation — Sistemas autonomos y automatizacion en Windows

@@ -89,3 +89,15 @@ INICIAR_JARVIS.bat El iniciador que usted ejecuta
 - Vuelva a ejecutar INICIAR_JARVIS.bat; es idempotente (no
   duplica ni rompe).
 - Mensajes mostrados en la consola indican cada paso.
+
+------------------------------------------------------------
+ ACTUALIZADO POR JARVIS EL 18/09/2026
+------------------------------------------------------------
+Kit actualizado con el sistema vigente del senor Wascar:
+- Bot nuevo (Ajustes v2, vigilante de turnos, modelo dinamico)
+- Cerebro compactado 18/09 + agentes doctor/plan/trading + memoria de reglas
+- Skills actualizadas (20) + herramienta herramientas_control (vision/clic/teclado)
+- Manos actualizadas (61 archivos)
+- Adaptador de rutas v2: adapta una copia de trabajo local en la PC nueva
+  (el kit conserva sus rutas de fabrica y sirve para varias PC).
+Sigue igual: doble clic a INICIAR_JARVIS.bat en la PC nueva.

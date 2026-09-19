@@ -1,0 +1,95 @@
+{
+  "nombre": "jarvis",
+  "entrada": 2,
+  "salida": 2,
+  "capas_ocultas": [
+    64,
+    64,
+    64,
+    64,
+    64,
+    64,
+    64,
+    64,
+    64
+  ],
+  "activacion": "relu",
+  "dropout": 0.05,
+  "semilla": 42,
+  "creado": "2026-08-17 11:46:46",
+  "tareas": [
+    {
+      "tarea": "espiral",
+      "semilla": 0,
+      "precision_va": 0.9125,
+      "perdida_va": 0.2456,
+      "epocas": 40,
+      "crecimientos": 3,
+      "capas": 10
+    },
+    {
+      "tarea": "lunas",
+      "semilla": 1,
+      "precision_va": 1.0,
+      "perdida_va": 0.0021,
+      "epocas": 40,
+      "crecimientos": 0,
+      "capas": 10
+    },
+    {
+      "tarea": "circulos",
+      "semilla": 2,
+      "precision_va": 1.0,
+      "perdida_va": 0.0062,
+      "epocas": 40,
+      "crecimientos": 0,
+      "capas": 10
+    },
+    {
+      "tarea": "gaussianas",
+      "semilla": 3,
+      "precision_va": 0.995,
+      "perdida_va": 0.0149,
+      "epocas": 40,
+      "crecimientos": 0,
+      "capas": 10
+    },
+    {
+      "tarea": "4gaussianas",
+      "semilla": 4,
+      "precision_va": 0.9975,
+      "perdida_va": 0.0113,
+      "epocas": 40,
+      "crecimientos": 0,
+      "capas": 10
+    }
+  ],
+  "crecimientos": 3,
+  "normalizacion": {
+    "media": [
+      0.011325180530548096,
+      0.0034794569946825504
+    ],
+    "std": [
+      1.0330027341842651,
+      1.0414760112762451
+    ]
+  },
+  "normalizacion_global": {
+    "media": [
+      0.011325180530548096,
+      0.0034794569946825504
+    ],
+    "std": [
+      1.0330027341842651,
+      1.0414760112762451
+    ]
+  },
+  "clases_por_tarea": {
+    "espiral": 2,
+    "lunas": 2,
+    "circulos": 2,
+    "gaussianas": 2,
+    "4gaussianas": 4
+  }
+}

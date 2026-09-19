@@ -1,6 +1,6 @@
 ---
 name: python-dev
-description: Programacion en Python profesional: buenas practicas, estructura de scripts, manejo de errores, entornos virtuales, dependencias y depuracion. Usar cuando el usuario pida crear, revisar, arreglar o mejorar codigo Python, scripts, herramientas CLI, librerias o el propio asistente.
+description: Programar en Python profesional: scripts, APIs y herramientas.
 ---
 
 # Python Dev — Scripts y codigo Python de calidad

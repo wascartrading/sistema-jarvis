@@ -1,6 +1,6 @@
 ---
 name: game-dev
-description: Desarrollo de videojuegos moderno: Canvas 2D, Phaser 4, PixiJS, Three.js, juegos web, Python (Pygame/Arcade) y Godot con GDScript. Usar para crear juegos 2D/3D en navegador, desktop o movil, con game loops, fisica, sprites y audio.
+description: Juegos 2D/3D: Canvas, Phaser, PixiJS, Three.js, Pygame y Godot.
 ---
 
 # game-dev

@@ -15,8 +15,7 @@ powershell -NoProfile -Command "if (Get-NetTCPConnection -State Listen -LocalPor
 if errorlevel 1 goto espera
 
 echo Modelo listo. Reiniciando el asistente (JARVIS)...
-REM 04/09/2026 (KIT PORTATIL): el lanzador vive en esta misma carpeta.
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0lanzar_jarvis_telegram.ps1"
+powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Users\wasc4\Documents\Sistema Jarvis\Proyectos de asistente\manos\lanzar_jarvis_telegram.ps1"
 
 echo.
 echo ============================================================

@@ -1,6 +1,6 @@
 ---
 name: library-master
-description: Maestro de librerias y herramientas modernas (Python, Node.js, web, CLI, datos, IA, voz, bots, automatizacion). Usar SIEMPRE que se vaya a elegir una libreria, crear codigo nuevo, resolver una dependencia o decidir que herramienta usar, para seleccionar la opcion mas moderna, mantenida y funcional de cada categoria.
+description: Elegir librerias y herramientas modernas y mantenidas.
 ---
 
 # library-master

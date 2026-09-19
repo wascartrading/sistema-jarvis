@@ -1,16 +1,12 @@
 # admin_bridge.ps1 - Puente de JARVIS para ejecutar comandos como ADMINISTRADOR
 # (via la tarea programada JARVIS_ELEVADO que corre con privilegios maximos).
 #
-# PORTABLE (kit 01/09/2026): usa la carpeta temp del USUARIO ACTUAL, no una
-# ruta fija de la PC original, para funcionar en cualquier maquina.
-#
 # Como funciona:
 #   1. JARVIS escribe el comando en el archivo de entrada (temp).
 #   2. JARVIS lanza la tarea:  schtasks /run /tn JARVIS_ELEVADO
-#   3. Este script (ejecutado como admin por la tarea) lee el comando,
+#   3. Este script (ejecutado como SYSTEM/admin por la tarea) lee el comando,
 #      lo ejecuta y guarda la salida en el archivo de salida.
 #   4. JARVIS lee la salida y la reporta.
-
 $dir = Join-Path $env:TEMP 'opencode'
 if (-not (Test-Path $dir)) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
 $in = Join-Path $dir 'jarvis_admin_in.txt'

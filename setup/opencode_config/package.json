@@ -2,6 +2,11 @@
   "dependencies": {
     "@ai-sdk/openai-compatible": "^3.0.19",
     "@omniroute/opencode-provider": "^0.1.0",
-    "@opencode-ai/plugin": "1.18.7"
+    "@opencode-ai/plugin": "1.18.7",
+    "context-mode": "^1.0.169"
+  },
+  "allowScripts": {
+    "context-mode@1.0.169": true,
+    "better-sqlite3@12.11.1": true
   }
 }

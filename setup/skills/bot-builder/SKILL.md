@@ -1,6 +1,6 @@
 ---
 name: bot-builder
-description: Creacion de bots, especialmente bots de Telegram en Python: plantillas listas, estructura, comandos, teclados, manejo de conversaciones y despliegue local. Usar cuando el usuario quiera crear, ampliar, depurar o arreglar un bot de Telegram, Discord u otro canal.
+description: Crear y arreglar bots de Telegram/Discord en Python.
 ---
 
 # Bot Builder — Bots de Telegram (y otros) en Python

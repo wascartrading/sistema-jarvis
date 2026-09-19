@@ -1,6 +1,6 @@
 ---
 name: web-dev
-description: Desarrollo web completo y moderno: HTML5, CSS3, JavaScript, TypeScript, Node.js backend y frameworks frontend (React, Vue, Svelte). Usar para crear paginas web, APIs REST, SPAs, sitios estaticos, o cualquier proyecto de web (frontend o backend) con practicas actualizadas a 2026.
+description: Desarrollo web: HTML, CSS, JS, React, Vue, Node y APIs REST.
 ---
 
 # web-dev

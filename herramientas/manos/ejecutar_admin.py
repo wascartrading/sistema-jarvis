@@ -1,9 +1,6 @@
 # ejecutar_admin.py - Ejecuta un comando como ADMINISTRADOR via la tarea
 # programada JARVIS_ELEVADO (privilegios maximos, sin ventanas de UAC).
 #
-# PORTABLE (kit 01/09/2026): usa la carpeta temp del USUARIO ACTUAL, no una
-# ruta fija de la PC original, para funcionar en cualquier maquina.
-#
 # Uso (desde JARVIS):
 #   python ejecutar_admin.py "comando"
 # Devuelve por stdout la salida del comando (con EXIT=... al inicio).

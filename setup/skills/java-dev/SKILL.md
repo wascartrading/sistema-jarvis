@@ -1,6 +1,6 @@
 ---
 name: java-dev
-description: Programacion en Java moderna: JDK 21/25 LTS, records, virtual threads, pattern matching, Spring Boot 4.x, Maven/Gradle y JUnit 5. Usar para crear APIs REST, aplicaciones empresariales, servicios backend y herramientas en Java con practicas actuales.
+description: Programar en Java: Spring, APIs, aplicaciones y JUnit.
 ---
 
 # java-dev

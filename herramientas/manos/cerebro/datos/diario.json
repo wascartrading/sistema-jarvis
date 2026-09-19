@@ -1,0 +1,593 @@
+[
+  {
+    "cerebro": "jarvis",
+    "tarea": "espiral",
+    "precision_va": 0.8675,
+    "perdida_va": 0.42,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 08:49:31"
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "lunas",
+    "precision_va": 0.9925,
+    "perdida_va": 0.1194,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 0,
+    "fecha": "2026-08-17 08:49:56"
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "espiral",
+    "precision_va": 0.8425,
+    "perdida_va": 0.4419,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 08:50:56"
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "lunas",
+    "precision_va": 0.99,
+    "perdida_va": 0.1958,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 0,
+    "fecha": "2026-08-17 08:51:02"
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "espiral",
+    "precision_va": 0.8425,
+    "perdida_va": 0.4419,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 08:52:38"
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "lunas",
+    "precision_va": 0.99,
+    "perdida_va": 0.2109,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 0,
+    "fecha": "2026-08-17 08:52:52"
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "espiral",
+    "precision_va": 0.8425,
+    "perdida_va": 0.4419,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 08:55:06"
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "lunas",
+    "precision_va": 0.9825,
+    "perdida_va": 0.4229,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 0,
+    "fecha": "2026-08-17 08:55:23"
+  },
+  {
+    "cerebro": "exp1",
+    "tarea": "espiral",
+    "precision_va": 0.8425,
+    "perdida_va": 0.4419,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 08:56:46"
+  },
+  {
+    "cerebro": "exp2",
+    "tarea": "espiral",
+    "precision_va": 0.8425,
+    "perdida_va": 0.4419,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 08:58:21"
+  },
+  {
+    "cerebro": "exp2",
+    "tarea": "lunas",
+    "precision_va": 0.9875,
+    "perdida_va": 0.4098,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 0,
+    "fecha": "2026-08-17 08:58:37"
+  },
+  {
+    "cerebro": "exp3",
+    "tarea": "espiral",
+    "precision_va": 0.8425,
+    "perdida_va": 0.4419,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 08:59:49"
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "espiral",
+    "precision_va": 0.8425,
+    "perdida_va": 0.4419,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 09:00:59"
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "lunas",
+    "precision_va": 0.9775,
+    "perdida_va": 0.406,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 0,
+    "fecha": "2026-08-17 10:32:14"
+  },
+  {
+    "cerebro": "exp4",
+    "tarea": "espiral",
+    "precision_va": 0.8425,
+    "perdida_va": 0.4419,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 10:33:35"
+  },
+  {
+    "cerebro": "exp5",
+    "tarea": "espiral",
+    "precision_va": 0.8425,
+    "perdida_va": 0.4419,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 10:37:10"
+  },
+  {
+    "cerebro": "exp6",
+    "tarea": "espiral",
+    "precision_va": 0.8425,
+    "perdida_va": 0.4419,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 10:39:02"
+  },
+  {
+    "cerebro": "exp7",
+    "tarea": "espiral",
+    "precision_va": 0.8425,
+    "perdida_va": 0.4419,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 10:40:09"
+  },
+  {
+    "cerebro": "exp8",
+    "tarea": "espiral",
+    "precision_va": 0.8425,
+    "perdida_va": 0.4419,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 10:42:40"
+  },
+  {
+    "cerebro": "exp9",
+    "tarea": "espiral",
+    "precision_va": 0.8425,
+    "perdida_va": 0.4419,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 10:45:26"
+  },
+  {
+    "cerebro": "exp9",
+    "tarea": "espiral",
+    "precision_va": 0.8425,
+    "perdida_va": 0.4419,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 10:47:05"
+  },
+  {
+    "cerebro": "exp9",
+    "tarea": "espiral",
+    "precision_va": 0.8425,
+    "perdida_va": 0.4419,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 10:48:42"
+  },
+  {
+    "cerebro": "exp10",
+    "tarea": "espiral",
+    "precision_va": 0.8425,
+    "perdida_va": 0.4419,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 10:50:24"
+  },
+  {
+    "cerebro": "exp11",
+    "tarea": "espiral",
+    "precision_va": 0.8425,
+    "perdida_va": 0.4419,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 10:53:12"
+  },
+  {
+    "cerebro": "exp12",
+    "tarea": "espiral",
+    "precision_va": 0.8425,
+    "perdida_va": 0.4419,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 10:55:11"
+  },
+  {
+    "cerebro": "exp13",
+    "tarea": "espiral",
+    "precision_va": 0.8425,
+    "perdida_va": 0.4419,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 10:56:25"
+  },
+  {
+    "cerebro": "exp14",
+    "tarea": "espiral",
+    "precision_va": 0.8425,
+    "perdida_va": 0.4419,
+    "capas": 10,
+    "parametros": 34754,
+    "crecimientos": 3,
+    "fecha": "2026-08-17 10:57:51"
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "espiral",
+    "precision_va": 0.955,
+    "perdida_va": 0.1531,
+    "capas": 7,
+    "parametros": 21890,
+    "crecimientos": 0,
+    "fecha": "2026-08-17 10:59:26"
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "lunas",
+    "precision_va": 0.9925,
+    "perdida_va": 0.0943,
+    "capas": 7,
+    "parametros": 21890,
+    "crecimientos": 0,
+    "fecha": "2026-08-17 10:59:37"
+  },
+  {
+    "cerebro": "exp15",
+    "tarea": "espiral",
+    "precision_va": 0.955,
+    "perdida_va": 0.1531,
+    "capas": 7,
+    "parametros": 21890,
+    "crecimientos": 0,
+    "fecha": "2026-08-17 11:16:54"
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "espiral",
+    "precision_va": 0.955,
+    "perdida_va": 0.1531,
+    "capas": 7,
+    "parametros": 21890,
+    "crecimientos": 0,
+    "fecha": "2026-08-17 11:18:24"
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "lunas",
+    "precision_va": 0.9925,
+    "perdida_va": 0.0943,
+    "capas": 7,
+    "parametros": 21890,
+    "crecimientos": 0,
+    "fecha": "2026-08-17 11:18:35"
+  },
+  {
+    "cerebro": "exp15",
+    "tarea": "espiral",
+    "precision_va": 0.955,
+    "perdida_va": 0.1531,
+    "capas": 7,
+    "parametros": 21890,
+    "crecimientos": 0,
+    "fecha": "2026-08-17 11:21:51"
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "espiral",
+    "precision_va": 0.585,
+    "perdida_va": 0.6772,
+    "capas": 10,
+    "parametros": 33602,
+    "crecimientos": 3
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "espiral",
+    "precision_va": 0.9125,
+    "perdida_va": 0.2456,
+    "capas": 10,
+    "parametros": 33602,
+    "crecimientos": 3
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "espiral",
+    "precision_va": 0.9125,
+    "perdida_va": 0.2456,
+    "capas": 10,
+    "parametros": 33602,
+    "crecimientos": 3
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "lunas",
+    "precision_va": 0.93,
+    "perdida_va": 0.3254,
+    "capas": 10,
+    "parametros": 33732,
+    "crecimientos": 0
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "espiral",
+    "precision_va": 0.9125,
+    "perdida_va": 0.2456,
+    "capas": 10,
+    "parametros": 33602,
+    "crecimientos": 3
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "lunas",
+    "precision_va": 0.93,
+    "perdida_va": 0.3254,
+    "capas": 10,
+    "parametros": 33732,
+    "crecimientos": 0
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "circulos",
+    "precision_va": 0.905,
+    "perdida_va": 0.3172,
+    "capas": 12,
+    "parametros": 42182,
+    "crecimientos": 2
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "gaussianas",
+    "precision_va": 0.9475,
+    "perdida_va": 0.1946,
+    "capas": 12,
+    "parametros": 42312,
+    "crecimientos": 0
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "espiral",
+    "precision_va": 0.9125,
+    "perdida_va": 0.2456,
+    "capas": 10,
+    "parametros": 33602,
+    "crecimientos": 3
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "lunas",
+    "precision_va": 0.93,
+    "perdida_va": 0.3254,
+    "capas": 10,
+    "parametros": 33732,
+    "crecimientos": 0
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "circulos",
+    "precision_va": 0.905,
+    "perdida_va": 0.3172,
+    "capas": 12,
+    "parametros": 42182,
+    "crecimientos": 2
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "gaussianas",
+    "precision_va": 0.9475,
+    "perdida_va": 0.1946,
+    "capas": 12,
+    "parametros": 42312,
+    "crecimientos": 0
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "espiral",
+    "precision_va": 0.9125,
+    "perdida_va": 0.2456,
+    "capas": 10,
+    "parametros": 33602,
+    "crecimientos": 3
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "lunas",
+    "precision_va": 0.9975,
+    "perdida_va": 0.0097,
+    "capas": 10,
+    "parametros": 33732,
+    "crecimientos": 0
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "circulos",
+    "precision_va": 1.0,
+    "perdida_va": 0.0084,
+    "capas": 10,
+    "parametros": 33862,
+    "crecimientos": 0
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "gaussianas",
+    "precision_va": 1.0,
+    "perdida_va": 0.0038,
+    "capas": 10,
+    "parametros": 33992,
+    "crecimientos": 0
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "4gaussianas",
+    "precision_va": 0.9975,
+    "perdida_va": 0.0129,
+    "capas": 10,
+    "parametros": 34252,
+    "crecimientos": 0
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "espiral",
+    "precision_va": 0.9125,
+    "perdida_va": 0.2456,
+    "capas": 10,
+    "parametros": 33602,
+    "crecimientos": 3
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "lunas",
+    "precision_va": 1.0,
+    "perdida_va": 0.0021,
+    "capas": 10,
+    "parametros": 33732,
+    "crecimientos": 0
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "circulos",
+    "precision_va": 1.0,
+    "perdida_va": 0.0062,
+    "capas": 10,
+    "parametros": 33862,
+    "crecimientos": 0
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "gaussianas",
+    "precision_va": 0.995,
+    "perdida_va": 0.0149,
+    "capas": 10,
+    "parametros": 33992,
+    "crecimientos": 0
+  },
+  {
+    "cerebro": "jarvis",
+    "tarea": "4gaussianas",
+    "precision_va": 0.9975,
+    "perdida_va": 0.0113,
+    "capas": 10,
+    "parametros": 34252,
+    "crecimientos": 0
+  },
+  {
+    "cerebro": "memoria",
+    "tarea": "lecciones",
+    "precision_va": 1.0,
+    "perdida_va": 0.0,
+    "capas": 7,
+    "parametros": 607363,
+    "crecimientos": 0
+  },
+  {
+    "cerebro": "memoria",
+    "tarea": "lecciones",
+    "precision_va": 1.0,
+    "perdida_va": 0.0,
+    "capas": 7,
+    "parametros": 607363,
+    "crecimientos": 0
+  },
+  {
+    "cerebro": "memoria",
+    "tarea": "lecciones",
+    "precision_va": 1.0,
+    "perdida_va": 0.0,
+    "capas": 7,
+    "parametros": 607363,
+    "crecimientos": 0
+  },
+  {
+    "cerebro": "memoria",
+    "tarea": "lecciones",
+    "precision_va": 1.0,
+    "perdida_va": 0.0,
+    "capas": 7,
+    "parametros": 607363,
+    "crecimientos": 0
+  },
+  {
+    "cerebro": "memoria",
+    "tarea": "lecciones",
+    "precision_va": 1.0,
+    "perdida_va": 0.0,
+    "capas": 7,
+    "parametros": 607363,
+    "crecimientos": 0
+  },
+  {
+    "cerebro": "memoria",
+    "tarea": "lecciones",
+    "precision_va": 1.0,
+    "perdida_va": 0.0,
+    "capas": 7,
+    "parametros": 607363,
+    "crecimientos": 0
+  },
+  {
+    "cerebro": "memoria",
+    "tarea": "lecciones",
+    "precision_va": 1.0,
+    "perdida_va": 0.8506,
+    "capas": 7,
+    "parametros": 607492,
+    "crecimientos": 0
+  }
+]

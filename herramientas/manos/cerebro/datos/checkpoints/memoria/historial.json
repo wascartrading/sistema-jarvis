@@ -1,0 +1,206 @@
+[
+  {
+    "epoca": 1,
+    "perdida_tr": 24854.865234375,
+    "perdida_va": 2.4891276359558105,
+    "precision_va": 0.0
+  },
+  {
+    "epoca": 2,
+    "perdida_tr": 37031.951171875,
+    "perdida_va": 1.9963631629943848,
+    "precision_va": 0.0
+  },
+  {
+    "epoca": 3,
+    "perdida_tr": 34627.626953125,
+    "perdida_va": 1.6021463871002197,
+    "precision_va": 0.0
+  },
+  {
+    "epoca": 4,
+    "perdida_tr": 20438.7392578125,
+    "perdida_va": 1.4610254764556885,
+    "precision_va": 0.0
+  },
+  {
+    "epoca": 5,
+    "perdida_tr": 15358.91455078125,
+    "perdida_va": 1.4615421295166016,
+    "precision_va": 0.0
+  },
+  {
+    "epoca": 6,
+    "perdida_tr": 11451.627685546875,
+    "perdida_va": 1.5412282943725586,
+    "precision_va": 0.0
+  },
+  {
+    "epoca": 7,
+    "perdida_tr": 17013.169921875,
+    "perdida_va": 1.5837833881378174,
+    "precision_va": 0.0
+  },
+  {
+    "epoca": 8,
+    "perdida_tr": 20365.126953125,
+    "perdida_va": 1.596519947052002,
+    "precision_va": 0.0
+  },
+  {
+    "epoca": 9,
+    "perdida_tr": 19520.2890625,
+    "perdida_va": 1.5681921243667603,
+    "precision_va": 0.0
+  },
+  {
+    "epoca": 10,
+    "perdida_tr": 18941.14453125,
+    "perdida_va": 1.5447077751159668,
+    "precision_va": 0.0
+  },
+  {
+    "epoca": 11,
+    "perdida_tr": 9817.67626953125,
+    "perdida_va": 1.501164197921753,
+    "precision_va": 0.0
+  },
+  {
+    "epoca": 12,
+    "perdida_tr": 16591.985107421875,
+    "perdida_va": 1.4510782957077026,
+    "precision_va": 0.0
+  },
+  {
+    "epoca": 13,
+    "perdida_tr": 8450.93408203125,
+    "perdida_va": 1.3959741592407227,
+    "precision_va": 0.0
+  },
+  {
+    "epoca": 14,
+    "perdida_tr": 8075.66357421875,
+    "perdida_va": 1.3276699781417847,
+    "precision_va": 0.0
+  },
+  {
+    "epoca": 15,
+    "perdida_tr": 8725.79345703125,
+    "perdida_va": 1.24839186668396,
+    "precision_va": 0.0
+  },
+  {
+    "epoca": 16,
+    "perdida_tr": 21742.392578125,
+    "perdida_va": 1.1646987199783325,
+    "precision_va": 0.0
+  },
+  {
+    "epoca": 17,
+    "perdida_tr": 12017.99365234375,
+    "perdida_va": 1.0750402212142944,
+    "precision_va": 0.0
+  },
+  {
+    "epoca": 18,
+    "perdida_tr": 5998.68017578125,
+    "perdida_va": 0.9937731027603149,
+    "precision_va": 1.0
+  },
+  {
+    "epoca": 19,
+    "perdida_tr": 11121.484619140625,
+    "perdida_va": 0.939183235168457,
+    "precision_va": 1.0
+  },
+  {
+    "epoca": 20,
+    "perdida_tr": 6115.885559082031,
+    "perdida_va": 0.8982802629470825,
+    "precision_va": 1.0
+  },
+  {
+    "epoca": 21,
+    "perdida_tr": 12338.15576171875,
+    "perdida_va": 0.8698421716690063,
+    "precision_va": 1.0
+  },
+  {
+    "epoca": 22,
+    "perdida_tr": 9824.58837890625,
+    "perdida_va": 0.8554044961929321,
+    "precision_va": 1.0
+  },
+  {
+    "epoca": 23,
+    "perdida_tr": 14866.865417480469,
+    "perdida_va": 0.8505998253822327,
+    "precision_va": 1.0
+  },
+  {
+    "epoca": 24,
+    "perdida_tr": 9082.36181640625,
+    "perdida_va": 0.8521509766578674,
+    "precision_va": 1.0
+  },
+  {
+    "epoca": 25,
+    "perdida_tr": 6958.23193359375,
+    "perdida_va": 0.8608088493347168,
+    "precision_va": 1.0
+  },
+  {
+    "epoca": 26,
+    "perdida_tr": 9448.124755859375,
+    "perdida_va": 0.8738728761672974,
+    "precision_va": 1.0
+  },
+  {
+    "epoca": 27,
+    "perdida_tr": 11310.434326171875,
+    "perdida_va": 0.8860070705413818,
+    "precision_va": 1.0
+  },
+  {
+    "epoca": 28,
+    "perdida_tr": 7252.95361328125,
+    "perdida_va": 0.9018275737762451,
+    "precision_va": 1.0
+  },
+  {
+    "epoca": 29,
+    "perdida_tr": 4592.927978515625,
+    "perdida_va": 0.9100637435913086,
+    "precision_va": 1.0
+  },
+  {
+    "epoca": 30,
+    "perdida_tr": 9294.957763671875,
+    "perdida_va": 0.9119138121604919,
+    "precision_va": 1.0
+  },
+  {
+    "epoca": 31,
+    "perdida_tr": 9016.1005859375,
+    "perdida_va": 0.9076387882232666,
+    "precision_va": 1.0
+  },
+  {
+    "epoca": 32,
+    "perdida_tr": 13093.201171875,
+    "perdida_va": 0.8995000720024109,
+    "precision_va": 1.0
+  },
+  {
+    "epoca": 33,
+    "perdida_tr": 6264.930419921875,
+    "perdida_va": 0.8891947865486145,
+    "precision_va": 1.0
+  },
+  {
+    "epoca": 34,
+    "perdida_tr": 9346.931640625,
+    "perdida_va": 0.8839990496635437,
+    "precision_va": 1.0
+  }
+]

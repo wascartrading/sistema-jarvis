@@ -1,6 +1,6 @@
 ---
 name: go-dev
-description: Programacion en Go (Golang) moderna: estructuras de proyecto, web con net/http o chi, concurrencia con goroutines y channels, JSON, SQL, errores y tooling. Usar para crear APIs, CLIs, servicios y herramientas de sistema en Go con practicas actualizadas.
+description: Programar en Go: APIs, CLIs, servicios y herramientas.
 ---
 
 # go-dev

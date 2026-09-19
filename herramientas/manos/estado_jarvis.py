@@ -17,11 +17,8 @@ import subprocess
 import sys
 import time
 
-# 04/09/2026 (KIT PORTATIL): rutas derivadas de este archivo (manos -> kit).
-_KIT_BASE = os.path.normpath(os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), '..', '..'))
-PROYECTOS = os.path.join(_KIT_BASE, 'jarvis')
-ASISTENTE = os.path.join(_KIT_BASE, 'herramientas')
+PROYECTOS = r'C:\Users\wasc4\Documents\Sistema Jarvis\proyectos'
+ASISTENTE = r'C:\Users\wasc4\Documents\Sistema Jarvis\Proyectos de asistente'
 PYTHON = r'C:\Users\wasc4\AppData\Local\Programs\Python\Python312\python.exe'
 MEMORIA = os.path.join(ASISTENTE, 'memoria_jarvis.md')
 BOT = os.path.join(PROYECTOS, 'jarvis_telegram_bot.py')

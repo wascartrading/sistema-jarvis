@@ -28,10 +28,7 @@ try:
 except Exception:
     pass
 
-# 04/09/2026 (KIT PORTATIL): ruta derivada de este archivo (manos -> kit\jarvis).
-_KIT_BASE = os.path.normpath(os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), '..', '..'))
-PROYECTOS = os.path.join(_KIT_BASE, "jarvis")
+PROYECTOS = r"C:\Users\wasc4\Documents\Sistema Jarvis\proyectos"
 CONFIG_PATH = os.path.join(PROYECTOS, "config_jarvis.json")
 LOG_PATH = os.path.join(os.environ.get("TEMP", os.environ.get("TMP", r"C:\Windows\Temp")),
                         "opencode", "jarvis_bot_out.log")

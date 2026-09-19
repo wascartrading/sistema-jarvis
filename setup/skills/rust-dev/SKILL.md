@@ -1,6 +1,6 @@
 ---
 name: rust-dev
-description: Programacion en Rust moderna (Edition 2024): ownership y borrow checker, manejo de errores con Result, async con tokio, web con axum, crates imprescindibles (serde, clap, tracing, sqlx) y tooling cargo. Usar para crear CLIs, servicios, herramientas de rendimiento critico y backend en Rust.
+description: Programar en Rust: CLIs, servicios y codigo de rendimiento critico.
 ---
 
 # rust-dev

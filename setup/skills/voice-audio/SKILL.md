@@ -1,10 +1,6 @@
 ---
 name: voice-audio
-description: Voz y audio del asistente: motores de voz (Kokoro, Piper), sintesis TTS, reconocimiento de voz, dispositivos de audio, fades y volumen, y la integracion futura de Moshi como capa de voz conversacional. Usar cuando se trabaje en la voz, el audio, el micrófono, los altavoces, TTS, STT o la capa de voz del asistente.
-license: Apache-2.0
-compatibility: opencode
-metadata:
-  audience: jarvis
+description: Voz y audio del asistente: TTS, STT, volumen y dispositivos.
 ---
 
 # Voice & Audio — La voz de JARVIS

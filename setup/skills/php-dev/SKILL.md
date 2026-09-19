@@ -1,6 +1,6 @@
 ---
 name: php-dev
-description: Programacion en PHP moderna: PHP 8.4/8.5, Composer y PSR-4, Laravel 12, Eloquent, Blade, WordPress, seguridad (PDO, password_hash, XSS). Usar para crear sitios web, APIs REST, CMS WordPress y aplicaciones web clasicas servidas en hosting.
+description: Programar en PHP: Laravel, WordPress, APIs y sitios web.
 ---
 
 # php-dev

@@ -1,7 +1,6 @@
 # Abre DeepSeek Harness: arranca el servidor web oculto si no esta corriendo y abre el navegador.
 $port = 3080
-# 04/09/2026 (KIT PORTATIL): el vbs vive junto a este script.
-$vbs = Join-Path $PSScriptRoot 'dsh_servidor_oculto.vbs'
+$vbs = "C:\Users\wasc4\Documents\Sistema Jarvis\Proyectos de asistente\manos\dsh_servidor_oculto.vbs"
 
 $listening = Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue
 if (-not $listening) {

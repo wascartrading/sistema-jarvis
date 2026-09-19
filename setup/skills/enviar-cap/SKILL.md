@@ -1,6 +1,6 @@
 ---
 name: enviar-cap
-description: Toma una captura de la pantalla (o de una ventana concreta) y la envia INMEDIATAMENTE al chat de Telegram del jefe. Usar cuando el jefe pida "enviame un cap", "captura la pantalla", "manda una foto de la pantalla", "manda un screenshot", o quiera ver que hay en pantalla. Detecta pantallas en reposo/bloqueadas y usa PrintWindow de respaldo para no mandar caps en negro.
+description: Capturar la pantalla y enviarla al chat de Telegram.
 ---
 
 # Enviar Cap — Captura de pantalla directa a Telegram
@@ -22,6 +22,24 @@ El script vive en este mismo directorio:
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Users\wasc4\.config\opencode\skills\enviar-cap\enviar_cap_telegram.ps1"
 ```
+
+## TODAS LAS VENTANAS (orden permanente del jefe, 15/09/2026)
+
+Cuando el jefe pida "un cap", lo que quiere es **una captura de CADA ventana
+abierta** (Brave, WhatsApp, OpenCode...), no solo del escritorio:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File "C:\Users\wasc4\.config\opencode\skills\enviar-cap\enviar_caps_todas.ps1"
+```
+
+- Enumera las ventanas de nivel superior con titulo y llama al script de una
+  ventana por cada una (reutiliza `enviar_cap_telegram.ps1`).
+- `-Max 8` limite de ventanas (por defecto 8) · `-Escritorio` solo el
+  escritorio completo · `-IncluirGlobal` añade el escritorio al final.
+- Devuelve JSON: `{"ok":true,"enviadas_total":N,"enviadas":[...],"fallidas":[...]}`.
+- Cada ventana se captura con PrintWindow: funciona **aunque el monitor este
+  en reposo** (el cap global no).
+
 
 Variantes:
 

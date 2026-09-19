@@ -1,6 +1,6 @@
 ---
 name: sql-dev
-description: SQL y bases de datos relacionales modernas: PostgreSQL 18 y SQLite, window functions, CTEs, joins, indices, normalizacion, transacciones, JSON jsonb y buenas practicas. Usar para disenar esquemas, escribir consultas SQL, optimizar queries y elegir la BD correcta.
+description: SQL y bases de datos: PostgreSQL, SQLite, esquemas y queries.
 ---
 
 # sql-dev

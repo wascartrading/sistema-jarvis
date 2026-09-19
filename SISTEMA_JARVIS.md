@@ -1,8 +1,9 @@
 # SISTEMA JARVIS — MAPA MAESTRO
-**Version: 14/09/2026.** Este es el documento de REFERENCIA PRINCIPAL del sistema:
+**Version: 18/09/2026.** Este es el documento de REFERENCIA PRINCIPAL del sistema:
 si el jefe pide cambiar algo interno (emojis, onda, esfera, dictado, colores,
-mensajes, canales...), JARVIS LEE AQUI PRIMERO y sigue las RECETAS de la
-seccion 5. JARVIS tiene acceso TOTAL a todas las piezas.
+mensajes, canales, iconos, motores...), JARVIS LEE AQUI PRIMERO y sigue las
+RECETAS de la seccion 5. JARVIS tiene acceso TOTAL a todas las piezas.
+**La seccion 9 lista los ULTIMOS FIXES aplicados (17-18/09/2026) con su funcionamiento.**
 
 ## 1. QUE ES JARVIS
 - Asistente personal del jefe (Wascar). Identidad + reglas permanentes:
@@ -11,15 +12,17 @@ seccion 5. JARVIS tiene acceso TOTAL a todas las piezas.
 - Motor de inteligencia: COMBO JARVIS via gateway **OmniRoute**
   (localhost:20128; datos en `C:\Users\wasc4\.omniroute\`, combos en la BD
   `storage.sqlite`).
-- Canales: **(1) APP MOVIL = PRIORITARIO** (orden del jefe 14/09/2026);
-  (2) Telegram + widget de voz = NEUTRALIZADOS por ahora (mientras exista
-  `proyectos\telegram_off.flag` no se lanzan al iniciar; se reactivan
-  borrando ese flag).
+- Canales (estado 18/09/2026): **(1) TELEGRAM = ACTIVO** (bot con pool de
+  sesiones, vigilante, caja negra, Ajustes v2 con catalogo y "Disponibles",
+  icono de bandeja fijo en la barra). **(2) APP MOVIL + PUENTE = APAGADOS por
+  flags** (`proyectos\movil_off.flag` y `puente_off.flag`: se reactivan
+  borrando el flag). **(3) Widget de voz (PC) = ACTIVO**: se relanza junto al
+  bot y queda SIEMPRE 1 sola instancia.
 
 ## 2. LAS PIEZAS (mapa completo)
 | Pieza | Ruta | Que hace |
 |---|---|---|
-| Bot de Telegram | `proyectos\jarvis_telegram_bot.py` | Canal Telegram (neutralizado). Motor compartido: responder_jarvis, pool de sesiones, saludos, estados |
+| Bot de Telegram | `proyectos\jarvis_telegram_bot.py` | **Canal ACTIVO** (18/09/2026). Motor responder_jarvis, pool de sesiones, Ajustes v2 (catalogo + Disponibles + guardar-motor), caja negra |
 | Servidor movil | `proyectos\jarvis_movil\servidor.py` | Canal app por WiFi (8090/8443). `_procesar` = corazon del flujo del chat (estado inicial, prefijo de canal, imagenes de salida) |
 | Agente del puente | `proyectos\jarvis_puente\agente_puente.py` | Conecta la PC a la nube (saliente). Cola de salida + warm-up + live |
 | Puente nube | `proyectos\jarvis_puente\puente.py` | Relay en Railway (app <-> PC). /ping, estado al conectar |
@@ -27,13 +30,16 @@ seccion 5. JARVIS tiene acceso TOTAL a todas las piezas.
 | Interfaz web | `proyectos\jarvis_movil\web\` (index.html, puente_web.js, live_web.js, temas_esfera.js, sw.js) | Toda la UI de la app: esfera, chat, onda, dictado, comentarios, visor, historial |
 | APK Android | `proyectos\jarvis_app\android\` (MainActivity.kt) | App nativa: WebView + dictado nativo + audio del live + guardar direccion |
 | APK compilada | `proyectos\jarvis_movil\JARVIS.apk` y `...\jarvis_puente\JARVIS.apk` | La que descarga el telefono (`/app.apk`) |
-| Widget de voz (PC) | `proyectos\widget_voz_jarvis\` | Widget flotante de escritorio (neutralizado con el bot) |
+| Widget de voz (PC) | `proyectos\widget_voz_jarvis\` | **ACTIVO** (18/09/2026): widget flotante + panel de config; cierre blindado (3 capas) y 1 sola instancia; el bot lo relanza al arrancar |
 | Cerebro/memoria | `C:\Users\wasc4\.config\opencode\agent\jarvis.md` + `memoria\` | Identidad, reglas y memorias |
 | Herramientas control | `proyectos\herramientas_control\cli.py` | Abrir apps, teclado, raton, vision, terminal, etc. |
 | Manos | `Proyectos de asistente\manos\` | Scripts clave: lanzar_jarvis_telegram.ps1, vigilar_jarvis.ps1, diagnostico_jarvis.py, ejecutar_admin.py |
 | Lanzador (arranque) | `manos\lanzar_jarvis_telegram.ps1` | Lo que corre Windows al encender (Run key "JARVIS") |
 | Vigilante | `manos\vigilar_jarvis.ps1` (tarea "JARVIS Vigilante") | Repara servicios caidos (app SIEMPRE; bot solo si no hay flag) |
 | Admin elevado | `manos\ejecutar_admin.py` (tarea JARVIS_ELEVADO) | Ejecutar comandos como administrador sin UAC |
+| Iconos / assets | `proyectos\assets\jarvis.ico/png` | Icono oficial (arc reactor) de bandeja, ventanas, lnk y widget. Receta: `manos\promover_icono_jarvis.ps1` |
+| Cambio de motor por orden | `manos\cambiar_modelo_jarvis.py` | Cambiar el modelo de JARVIS desde el chat (busca el ID por nombre flexible, lo prueba de verdad, guarda config como el panel; `--reiniciar` aplica; `--ver` muestra actual/anterior) |
+| Captura de pantalla | `manos\ver_pantalla.ps1` | Captura + OCR del escritorio (JSON). Herramienta de diagnostico visual |
 
 ## 3. FLUJO DE UN MENSAJE (app)
 - EN CASA (WiFi): App -> servidor local (8090/ws) -> `_procesar` -> opencode (agente jarvis) -> COMBO via OmniRoute -> respuesta al chat.
@@ -357,3 +363,71 @@ sobrescribe: si el bot se reinicia o muere, lo escrito queda.
 4. Respaldo (.bak con fecha) antes de editar archivos criticos.
 5. Si el cambio es grande: LUZ VERDE del jefe (regla permanente).
 6. El dictado y el live viven en el APK: si se tocan, avisar al jefe que instale la APK nueva.
+
+## 9. FIXES APLICADOS 17-18/09/2026 (verificados y activos — JARVIS debe recordarlos)
+
+**Ajustes v2** (ventana en `jarvis_telegram_bot.py`: `_ventana_ajustes_v2`):
+1. CATALOGO COMPLETO: fix de 3 `nonlocal` (cache + seleccion). El arbol muestra
+   los 106 modelos; "🔄 Actualizar" recarga; "✅ Disponibles" consulta el estado
+   de OmniRoute SIN llamar a los modelos (instantaneo, nodo al tope).
+2. INSTANCIA UNICA: la ventana no se duplica (lock + `_AJUSTES_V2_ROOT` + traer al
+   frente). El doble clic del icono de la bandeja = abrir Ajustes.
+3. VENTANA: menos vertical (tree height 13, columnas 430). El boton MINIMIZAR
+   quedo RESTAURADO como estaba (orden del jefe).
+4. GUARDAR MOTOR: valida con `_probar_modelo` ANTES de aplicar (si no responde:
+   "elija otro", no guarda) y REINICIA AL INSTANTE (`_reiniciar_bot_diferido(0)`;
+   ya no 8+12 s).
+5. MODELO DINAMICO: `_con_modelo_activo()` inyecta "[MODELO ACTIVO ...]" en cada
+   turno; la seccion 5 del cerebro guia la respuesta exacta. ELIMINADOS los atajos
+   "despierta" y "¿que modelo eres?" (nada de respuestas fijas: todo mensaje de
+   texto va al modelo; botones del teclado y "limpia conversacion" no).
+6. ICONOS: `proyectos\assets\jarvis.ico/png` (arc reactor). Bandeja (pystray),
+   ventana Ajustes (WM_SETICON + identidad AUMID "Jarvis.Telegram.System" para la
+   barra de tareas), panel del widget, lnk de inicio y `manos\jarvis.ico`. Para
+   que la bandeja quede FIJA fuera de ocultos: `manos\promover_icono_jarvis.ps1`.
+7. DISPONIBLES sin consumo: `_disponibilidad_omniroute()` = `GET /api/models` del
+   gateway local (campo `available` que OmniRoute mantiene con SUS chequeos).
+8. ANTI-HUERFANOS: `_probar_modelo` usa Popen + `taskkill /T` al expirar (ya no
+   quedan procesos opencode colgados).
+
+**Widget de voz** (`widget_voz_jarvis\widget.py`):
+9. CIERRE BLINDADO: `--salir` cierra TODAS las ventanas JARVIS en 3 capas
+   (WM_CLOSE -> taskkill -> barrido CIM), corte temporal por `_T0_PROCESO`
+   (nacimiento del proceso, evita la carrera) y gestores con `os._exit` (sin
+   procesos fantasma). El bot espera a que NO quede ningun widget vivo antes de
+   relanzar (`_widget_reiniciar`).
+
+**Caja negra**:
+10. `registro\ver_registro.py` con salida UTF-8 forzada (fallaba con cp1252).
+11. HERRAMIENTA DE CAMBIO DE MODELO: `manos\cambiar_modelo_jarvis.py` — el modelo
+    puede cambiar su propio motor por orden del jefe: busca el ID por nombre
+    flexible ("muse spark 1.3" -> opencode/muse-spark-1.3), LO PRUEBA de verdad
+    (si no responde: avisa y NO cambia nada), guarda config_jarvis.json igual que
+    el panel (modelo + modelo_anterior) y registra en la caja negra. `--ver` =
+    actual/anterior; `--reiniciar` = aplica (12 s de margen, SOLO con el si del
+    jefe). Probado ida y vuelta el 18/09/2026.
+12. AJUSTES v2 REORGANIZADA (18/09/2026, orden del jefe): pestanas
+    Razonamiento / Cerebro / Telegram / General. "Cerebro" = intercambiar el
+    AGENTE activo (jarvis, doctor, plan, trading...) con Guardar y reiniciar.
+    "General" = iniciar con Windows + restablecer predeterminados. Ventana
+    normal (sin topmost), titulo sin emoji, botones depurados (Actualizar,
+    Disponibles, Probar, Guardar y reiniciar). Estados: fix TRAILING (los
+    cambios rapidos ya no se pierden) + latido con tiempo transcurrido.
+13. AJUSTES v2 detalles (18/09/2026): buscador con la indicacion "Busca tu
+    modelo especifico" dentro de la caja; pestana Cerebro con TODOS los
+    agentes que opencode reconoce (Cerebros del sistema: jarvis/doctor/plan/
+    trading y memoria/*; y "De opencode": build, compaction, explore,
+    general, summary, title). Identidades propias para doctor/plan/trading
+    (seccion "Quien eres" en `agent\*.md`); el doctor conoce el sistema
+    completo actualizado via `SISTEMA_JARVIS.md`.
+
+**Backups de la jornada**: `.bak_20260918_*` en `proyectos\` (bot: catalogo,
+ajustes unico, atajos, disponibles) y `widget.py.bak_20260918_doctor_blindaje`.
+
+### RECETAS NUEVAS (auto-reparacion, solo con orden del jefe):
+- ICONO de bandeja se esconde: `powershell -File "manos\promover_icono_jarvis.ps1"`.
+- VENTANA de Ajustes rara/duplicada: cerrar y reabrir; el blindaje de instancia unica hace el resto.
+- WIDGET duplicado o ausente: el reinicio del bot lo deja en 1 (cierre 3 capas + espera a 0).
+- "Disponibles" no responde: comprobar OmniRoute (HTTP 200 en `127.0.0.1:20128/v1/models`).
+- Modelo sin respuesta: "⚡ Probar" individual; al guardar, la validacion avisa y no aplica.
+- Verificacion GLOBAL: `python "manos\diagnostico_jarvis.py"`.

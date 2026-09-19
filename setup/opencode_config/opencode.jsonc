@@ -14,7 +14,12 @@
           "name": "COMBO DEEPS"
         },
         "COMBO JARVIS": {
-          "name": "COMBO JARVIS"
+          "name": "COMBO JARVIS",
+          "attachment": true,
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          }
         },
         "oc/deepseek-v4-flash": {
           "name": "oc/deepseek-v4-flash"
@@ -69,7 +74,8 @@
     "opencode",
     "opencode-go",
     "opencode-zen",
-    "omniroute"
+    "omniroute",
+    "cerebras"
   ],
   "small_model": "opencode-go/deepseek-v4-flash",
   "disabled_providers": [

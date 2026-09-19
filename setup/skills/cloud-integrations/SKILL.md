@@ -1,10 +1,6 @@
 ---
 name: cloud-integrations
-description: Integraciones con la nube y APIs externas en Python: Supabase Storage, subida y descarga de archivos, consultas REST, manejo de credenciales y autenticacion. Usar cuando el usuario pida guardar, subir, bajar o sincronizar archivos en la nube, consumir APIs externas o gestionar credenciales de servicios en la nube.
-license: Apache-2.0
-compatibility: opencode
-metadata:
-  audience: jarvis
+description: Nube y APIs externas: Supabase, subida/descarga, credenciales y REST.
 ---
 
 # Cloud Integrations — Nube y APIs externas

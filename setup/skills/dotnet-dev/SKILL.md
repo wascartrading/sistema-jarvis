@@ -1,6 +1,6 @@
 ---
 name: dotnet-dev
-description: Programacion en C# y .NET moderna: .NET 10 LTS, C# 13/14, Minimal APIs de ASP.NET Core, EF Core, async/await, concurrencia, CLI dotnet y Unity para juegos. Usar para crear aplicaciones de escritorio, APIs web y juegos en C#.
+description: Programar en C# y .NET: APIs, escritorio y juegos.
 ---
 
 # dotnet-dev

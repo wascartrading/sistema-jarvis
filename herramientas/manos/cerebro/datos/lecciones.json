@@ -1,0 +1,72 @@
+[
+  {
+    "texto": "le gusta el cafe con leche",
+    "categoria": "gustos",
+    "fecha": "2026-08-17 11:56:39"
+  },
+  {
+    "texto": "prefiere respuestas cortas y directas",
+    "categoria": "estilo",
+    "fecha": "2026-08-17 11:56:41"
+  },
+  {
+    "texto": "le gusta la musica reggaeton",
+    "categoria": "gustos",
+    "fecha": "2026-08-17 11:56:42"
+  },
+  {
+    "texto": "trabaja con trading de opciones",
+    "categoria": "trabajo",
+    "fecha": "2026-08-17 11:56:44"
+  },
+  {
+    "texto": "le gusta el cafe",
+    "categoria": "gustos",
+    "fecha": "2026-08-17 11:56:45"
+  },
+  {
+    "texto": "quiere respuestas con humor sutil",
+    "categoria": "estilo",
+    "fecha": "2026-08-17 11:56:47"
+  },
+  {
+    "texto": "hace trading con iq option",
+    "categoria": "trabajo",
+    "fecha": "2026-08-17 11:56:49"
+  },
+  {
+    "texto": "le gusta el rock clasico",
+    "categoria": "gustos",
+    "fecha": "2026-08-17 12:04:09"
+  },
+  {
+    "texto": "le gusta programar en python",
+    "categoria": "trabajo",
+    "fecha": "2026-08-17 12:04:11"
+  },
+  {
+    "texto": "prefiere que le hable de usted",
+    "categoria": "estilo",
+    "fecha": "2026-08-17 12:04:12"
+  },
+  {
+    "texto": "le gusta el te verde",
+    "categoria": "gustos",
+    "fecha": "2026-08-17 12:08:40"
+  },
+  {
+    "texto": "le gusta trabajar de noche",
+    "categoria": "habitos",
+    "fecha": "2026-08-17 12:08:42"
+  },
+  {
+    "texto": "quiere que Jarvis aprenda en el dia a dia y reduzca la dependencia de modelos externos",
+    "categoria": "reglas",
+    "fecha": "2026-08-19 15:33:49"
+  },
+  {
+    "texto": "su cancion favorita es Overdose de Citizen",
+    "categoria": "gustos",
+    "fecha": "2026-08-19 16:27:52"
+  }
+]

@@ -123,6 +123,10 @@ New-Item -ItemType Directory -Force -Path $ocSkills | Out-Null
 
 # Cerebro (agentes)
 Copy-Item "$KitDir\setup\cerebro\*.md" $ocAgent -Force
+# Memoria de reglas/preferencias (agentes)
+$ocMemoria = Join-Path $ocAgent 'memoria'
+New-Item -ItemType Directory -Force -Path $ocMemoria | Out-Null
+Copy-Item "$KitDir\setup\cerebro\memoria\*.md" $ocMemoria -Force
 
 # Config de opencode (solo si no existe, para no pisar config de otra maquina)
 if (-not (Test-Path (Join-Path $ocConfig 'opencode.json'))) {
@@ -158,12 +162,30 @@ if (Test-Path $bridgeCmd) {
     Write-Host "   (no se encontro admin_bridge.cmd; el poder admin no se configura)" -ForegroundColor Gray
 }
 
-# ---------- PASO 7: re-escribir rutas de maquina -> kit ----------
-Write-Host "[7/8] Adaptando rutas de la maquina anterior..." -ForegroundColor Yellow
+# ---------- PASO 7: re-escribir rutas de maquina -> copia local ----------
+Write-Host "[7/8] Adaptando rutas en la copia de trabajo (el kit queda intacto)..." -ForegroundColor Yellow
 $antigua = "C:\Users\wasc4"
 $kitScriptPath = "$KitDir\setup\adaptar_rutas.ps1"
+# Copia de trabajo en el perfil de la PC nueva (el kit NO se modifica)
+$local = Join-Path $env:USERPROFILE 'JARVIS_PORTATIL'
+New-Item -ItemType Directory -Force -Path $local | Out-Null
+Write-Host "   Copiando bot, herramientas y SISTEMA_JARVIS a $local ..." -ForegroundColor Gray
+if (Test-Path "$KitDir\jarvis") {
+    Copy-Item "$KitDir\jarvis\*" "$local\" -Recurse -Force
+}
+if (Test-Path "$KitDir\herramientas") {
+    Copy-Item "$KitDir\herramientas\*" (Join-Path $local 'herramientas') -Recurse -Force
+}
+if (Test-Path "$KitDir\SISTEMA_JARVIS.md") {
+    Copy-Item "$KitDir\SISTEMA_JARVIS.md" "$local\" -Force
+}
 if (Test-Path $kitScriptPath) {
-    & $kitScriptPath -Antigua $antigua -KitDir $KitDir -UserProfile $env:USERPROFILE
+    # Adaptar la copia local (bot + herramientas + cerebro copiado)
+    & $kitScriptPath -Antigua $antigua -KitDir $KitDir -UserProfile $env:USERPROFILE -Target $local
+    # Adaptar tambien el cerebro/skills DESPLEGADOS en opencode
+    if (Test-Path "$ocConfig") {
+        & $kitScriptPath -Antigua $antigua -KitDir $KitDir -UserProfile $env:USERPROFILE -Target $ocConfig
+    }
 } else {
     Write-Host "   (no se encontro helper de rutas, se omite)" -ForegroundColor Gray
 }
@@ -202,7 +224,7 @@ if ($conn) {
     }
 }
 
-# Arrancar el bot
+# Arrancar el bot (desde la copia de trabajo local)
 Write-Host ""
 Write-Host "Lanzando el bot de Telegram de JARVIS..." -ForegroundColor Cyan
 $botProc = Get-CimInstance Win32_Process -Filter "Name='python.exe' OR Name='pythonw.exe'" -ErrorAction SilentlyContinue |
@@ -210,9 +232,11 @@ $botProc = Get-CimInstance Win32_Process -Filter "Name='python.exe' OR Name='pyt
 if ($botProc) {
     Write-Host "   El bot ya estaba corriendo (PID $($botProc[0].ProcessId))." -ForegroundColor Green
 } else {
-    Start-Process -FilePath $python -ArgumentList @('-u', ('"' + "$KitDir\jarvis\jarvis_telegram_bot.py" + '"')) `
-        -WorkingDirectory "$KitDir\jarvis" -WindowStyle Hidden
-    Write-Host "   Bot lanzado. Icono de JARVIS en la bandeja." -ForegroundColor Green
+    $botPath = "$local\jarvis\jarvis_telegram_bot.py"
+    if (-not (Test-Path $botPath)) { $botPath = "$KitDir\jarvis\jarvis_telegram_bot.py" }
+    Start-Process -FilePath $python -ArgumentList @('-u', ('"' + $botPath + '"')) `
+        -WorkingDirectory (Split-Path $botPath) -WindowStyle Hidden
+    Write-Host "   Bot lanzado desde $botPath. Icono de JARVIS en la bandeja." -ForegroundColor Green
 }
 
 Write-Host ""

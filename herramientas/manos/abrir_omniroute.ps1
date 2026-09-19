@@ -65,6 +65,13 @@ if (-not $puertoActivo) {
     if ($orCmd) {
         $node = (Get-Command node -ErrorAction SilentlyContinue).Source
         if ($node) {
+            # 13/09/2026 (fix DOCTOR): OmniRoute 3.8.49 admite por defecto solo
+            # UNA peticion "estructuralmente pesada" en vuelo. Con opencode
+            # (agente + subagentes + compactacion) eso devuelve el 503
+            # "Structurally heavy chat request capacity is busy; retry shortly".
+            # El valor 2 es el minimo que OmniRoute documenta para clientes
+            # tipo opencode; evita el bloqueo del segundo request pesado.
+            $env:OMNIROUTE_CHAT_MAX_HEAVY_IN_FLIGHT = '2'
             $env:DATA_DIR = $dataDir
             $mod = Join-Path (Split-Path $orCmd.Source) 'node_modules\omniroute\bin\omniroute.mjs'
             Start-Process -FilePath $node -ArgumentList @($mod, 'serve', '--no-open', '--no-tray') -WindowStyle Hidden

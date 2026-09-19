@@ -1,0 +1,140 @@
+[
+  {
+    "epoca": 1,
+    "perdida_tr": 1.8258974349498749,
+    "perdida_va": 0.2271796876192093,
+    "precision_va": 0.9875
+  },
+  {
+    "epoca": 2,
+    "perdida_tr": 0.8368262934684754,
+    "perdida_va": 0.07251358218491077,
+    "precision_va": 0.9925
+  },
+  {
+    "epoca": 3,
+    "perdida_tr": 0.6933426111936569,
+    "perdida_va": 0.04426608901470899,
+    "precision_va": 0.9925
+  },
+  {
+    "epoca": 4,
+    "perdida_tr": 0.6492876207828522,
+    "perdida_va": 0.027384876664727928,
+    "precision_va": 0.995
+  },
+  {
+    "epoca": 5,
+    "perdida_tr": 0.645763345360756,
+    "perdida_va": 0.020824636220932006,
+    "precision_va": 0.9975
+  },
+  {
+    "epoca": 6,
+    "perdida_tr": 0.5491904804110527,
+    "perdida_va": 0.02477585358545184,
+    "precision_va": 0.995
+  },
+  {
+    "epoca": 7,
+    "perdida_tr": 0.5723564839363098,
+    "perdida_va": 0.023464030576869844,
+    "precision_va": 0.995
+  },
+  {
+    "epoca": 8,
+    "perdida_tr": 0.5896571114659309,
+    "perdida_va": 0.020103463353589177,
+    "precision_va": 0.995
+  },
+  {
+    "epoca": 9,
+    "perdida_tr": 0.5500068628787994,
+    "perdida_va": 0.020151770911179482,
+    "precision_va": 0.995
+  },
+  {
+    "epoca": 10,
+    "perdida_tr": 0.5225433629751205,
+    "perdida_va": 0.01683433888014406,
+    "precision_va": 0.995
+  },
+  {
+    "epoca": 11,
+    "perdida_tr": 0.48977910935878755,
+    "perdida_va": 0.018346580984070895,
+    "precision_va": 0.995
+  },
+  {
+    "epoca": 12,
+    "perdida_tr": 0.5720144146680832,
+    "perdida_va": 0.016828893376514317,
+    "precision_va": 0.9975
+  },
+  {
+    "epoca": 13,
+    "perdida_tr": 0.573731101155281,
+    "perdida_va": 0.014117673009168356,
+    "precision_va": 0.9975
+  },
+  {
+    "epoca": 14,
+    "perdida_tr": 0.5322688719630242,
+    "perdida_va": 0.014372362704016269,
+    "precision_va": 0.9975
+  },
+  {
+    "epoca": 15,
+    "perdida_tr": 0.521775743663311,
+    "perdida_va": 0.011343598635867237,
+    "precision_va": 0.9975
+  },
+  {
+    "epoca": 16,
+    "perdida_tr": 0.5311443281173706,
+    "perdida_va": 0.011873640608973801,
+    "precision_va": 0.9975
+  },
+  {
+    "epoca": 17,
+    "perdida_tr": 0.49928573697805406,
+    "perdida_va": 0.012955462196841835,
+    "precision_va": 0.9975
+  },
+  {
+    "epoca": 18,
+    "perdida_tr": 0.5235848698019981,
+    "perdida_va": 0.01243869895581156,
+    "precision_va": 0.9975
+  },
+  {
+    "epoca": 19,
+    "perdida_tr": 0.506533754169941,
+    "perdida_va": 0.011539318985305726,
+    "precision_va": 0.9975
+  },
+  {
+    "epoca": 20,
+    "perdida_tr": 0.5256328409910203,
+    "perdida_va": 0.011736538570839911,
+    "precision_va": 0.9975
+  },
+  {
+    "epoca": 21,
+    "perdida_tr": 0.5314697653055191,
+    "perdida_va": 0.010681871031410993,
+    "precision_va": 0.9975
+  },
+  {
+    "epoca": 22,
+    "perdida_tr": 0.5366839155554771,
+    "perdida_va": 0.01044049402931705,
+    "precision_va": 0.9975
+  },
+  {
+    "epoca": 23,
+    "perdida_tr": 0.5156149044632912,
+    "perdida_va": 0.010401792153716087,
+    "precision_va": 0.9975
+  }
+]

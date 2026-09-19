@@ -1,8 +1,6 @@
 ---
 name: skill-authoring
-description: Crea y mejora skills de opencode siguiendo el estandar Agent Skills y las mejores practicas de autor (basado en la guia oficial de Anthropic y la documentacion de opencode). Usar cuando se vaya a crear, redisenar, fusionar, depurar o auditar cualquier skill, incluidas las de este proyecto.
-license: Apache-2.0
-compatibility: opencode
+description: Crear y auditar skills de opencode.
 ---
 
 # Autor de Skills
