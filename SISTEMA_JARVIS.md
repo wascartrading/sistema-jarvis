@@ -44,6 +44,7 @@ RECETAS de la seccion 5. JARVIS tiene acceso TOTAL a todas las piezas.
 | Bienestar (estado integral) | `manos\bienestar_jarvis.py` | Chequeo COMPLETO en ~0,3 s: instancias (dobles), puertos + zombis, red (OmniRoute/internet/IP), integridad (7 JSON, flags, log), CPU/RAM/disco, GPU (nvidia-smi) y errores del dia; veredicto "AL 100%" u obstruccion concreta. Opciones `--corto/--json/--sin-gpu`. Se autoejecuta con Python312 (el `python` del PATH no trae psutil). Manual: skill `tool-bienestar` |
 | Cerebro lite | `C:\Users\wasc4\.config\opencode\agent\jarvis-lite.md` | Version hipermega comprimida de JARVIS (~2 KB frente a 23,8 KB): identidad y reglas vivas sin el detalle largo. Aparece sola en Ajustes -> Cerebro -> "Cerebros del sistema" |
 | Kit portatil (otra PC) | repo GitHub `wascartrading/sistema-jarvis` | Copia autonoma de JARVIS para otra PC/USB: bot, cerebro, skills, OmniRoute y LA APP ANDROID (`app/`: APK + doc + fuente). Arranca con `INICIAR_JARVIS.bat` |
+| Pagina de descarga (app) | `proyectos\jarvis_app\descarga\servir_descarga.py` | Pagina simple con boton "Descargar la app"; sirve SIEMPRE el APK mas nuevo (detecta `JARVIS-*-arm64.apk`). En `http://192.168.100.2:8099/` (directo: `/app.apk`) |
 
 ## 3. FLUJO DE UN MENSAJE (app)
 - EN CASA (WiFi): App -> servidor local (8090/ws) -> `_procesar` -> opencode (agente jarvis) -> COMBO via OmniRoute -> respuesta al chat.

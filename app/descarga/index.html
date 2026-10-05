@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Descargar JARVIS</title>
+<meta name="description" content="Descargue la aplicación JARVIS para su teléfono. Siempre la última versión.">
+<style>
+  :root{
+    --tinta:#080c14;
+    --panel:#0e1622;
+    --linea:rgba(120,175,255,.16);
+    --cian:#39e0ff;
+    --cian-2:#8af2ff;
+    --texto:#e9f1fb;
+    --tenue:#8ea1bb;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{min-height:100%}
+  body{
+    font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+    color:var(--texto);
+    background:
+      radial-gradient(1100px 620px at 50% -12%, rgba(57,224,255,.16), transparent 60%),
+      radial-gradient(900px 520px at 50% 118%, rgba(57,224,255,.08), transparent 60%),
+      var(--tinta);
+    display:flex; align-items:center; justify-content:center;
+    padding:26px;
+  }
+  .tarjeta{
+    width:100%; max-width:430px;
+    background:linear-gradient(180deg, rgba(20,30,46,.92), rgba(12,19,30,.92));
+    border:1px solid var(--linea);
+    border-radius:22px;
+    padding:34px 26px 26px;
+    text-align:center;
+    box-shadow:0 30px 80px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.04);
+  }
+  /* Esfera */
+  .esfera{
+    width:104px;height:104px;margin:0 auto 18px;position:relative;
+  }
+  .nucleo{
+    position:absolute;inset:26px;border-radius:50%;
+    background:radial-gradient(circle at 38% 34%, #eafcff, var(--cian) 45%, #1a6f86 100%);
+    box-shadow:0 0 38px rgba(57,224,255,.55), 0 0 90px rgba(57,224,255,.22);
+    animation:latido 3.4s ease-in-out infinite;
+  }
+  .aro{
+    position:absolute;inset:0;border-radius:50%;
+    border:1.5px solid rgba(57,224,255,.42);
+    border-top-color:var(--cian-2);
+    animation:giro 5.6s linear infinite;
+  }
+  .aro.b{inset:11px;border-color:rgba(57,224,255,.22);border-bottom-color:var(--cian-2);animation-duration:8.4s;animation-direction:reverse}
+  @keyframes giro{to{transform:rotate(360deg)}}
+  @keyframes latido{0%,100%{transform:scale(1);opacity:.95}50%{transform:scale(1.06);opacity:1}}
+
+  .marca{
+    font-size:13px;letter-spacing:7px;color:var(--cian-2);
+    font-weight:600;margin-bottom:10px;padding-left:7px;
+  }
+  h1{font-size:26px;line-height:1.18;font-weight:700;letter-spacing:-.2px;margin-bottom:10px}
+  .sub{color:var(--tenue);font-size:14.5px;line-height:1.55;margin-bottom:20px}
+
+  .puntos{list-style:none;text-align:left;margin:0 auto 24px;max-width:300px}
+  .puntos li{
+    position:relative;padding:7px 0 7px 26px;font-size:14px;color:#cddaeb;
+    border-bottom:1px dashed rgba(120,175,255,.12);
+  }
+  .puntos li:last-child{border-bottom:none}
+  .puntos li::before{
+    content:"";position:absolute;left:4px;top:13px;
+    width:8px;height:8px;border-radius:50%;
+    background:var(--cian);box-shadow:0 0 10px var(--cian);
+  }
+
+  .boton{
+    display:block;width:100%;
+    padding:16px 20px;border-radius:14px;
+    background:linear-gradient(180deg,var(--cian-2),var(--cian));
+    color:#04252e;font-weight:700;font-size:16.5px;letter-spacing:.3px;
+    text-decoration:none;
+    box-shadow:0 12px 30px rgba(57,224,255,.3), inset 0 -2px 0 rgba(0,0,0,.18);
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .boton:active{transform:translateY(1px);box-shadow:0 6px 18px rgba(57,224,255,.26)}
+  .nota{color:var(--tenue);font-size:12px;margin-top:12px}
+  .version{
+    display:inline-block;margin-top:14px;padding:4px 12px;border-radius:999px;
+    border:1px solid var(--linea);color:var(--cian-2);font-size:12px;letter-spacing:.6px;
+  }
+  .pie{margin-top:20px;color:#6d7f98;font-size:11px;letter-spacing:.4px}
+</style>
+</head>
+<body>
+  <main class="tarjeta">
+    <div class="esfera" aria-hidden="true">
+      <span class="aro"></span>
+      <span class="aro b"></span>
+      <span class="nucleo"></span>
+    </div>
+    <p class="marca">JARVIS</p>
+    <h1>La app de su asistente</h1>
+    <p class="sub">Su mayordomo, en el bolsillo. Instálela y converse con JARVIS desde el teléfono.</p>
+
+    <ul class="puntos">
+      <li>Chat con JARVIS, en tiempo real</li>
+      <li>Llamada de voz en vivo</li>
+      <li>Widget flotante: esfera, ondas y chat</li>
+    </ul>
+
+    <a class="boton" href="/app.apk" download>Descargar la app</a>
+    <p class="nota">Android · active «instalar apps de fuentes desconocidas»</p>
+
+    <div class="version">Versión {{VERSION}}</div>
+    <p class="pie">App creada por Wáscar y JARVIS</p>
+  </main>
+</body>
+</html>

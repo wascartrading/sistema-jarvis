@@ -36,7 +36,8 @@ setup/adaptar_rutas.ps1    Adapta rutas de PC original -> nueva
 omniroute/data/    Mi motor: storage.sqlite + .env (combos y APIs)
 herramientas/      carpeta manos/ y scripts_agente/ (mis scripts)
 app/               LA APP ANDROID: JARVIS.apk lista para instalar (26.0)
-                   + documentacion + codigo fuente para recompilar.
+                   + documentacion + codigo fuente para recompilar
+                   + descarga/ (pagina con boton que da la ultima version).
 ARQUITECTURA.md    PLANO DETALLADO del sistema (componentes, flujo,
                    rutas, diagnostico y poderes). Si algo falla o
                    esta mal puesto, el JARVIS del kit lo consulta.
@@ -99,6 +100,9 @@ INICIAR_JARVIS.bat El iniciador que usted ejecuta
   carpeta app/ con JARVIS.apk (version 26.0, lista para instalar en el
   celular), su documentacion completa y el codigo fuente para recompilar.
   El instalador la deja tambien en la copia de trabajo (JARVIS_PORTATIL\app).
+- PAGINA DE DESCARGA (orden del jefe): en app/descarga/ hay una pagina
+  sencilla con un boton que entrega SIEMPRE la ultima version del APK.
+  Se abre con ABRIR_DESCARGA.bat y queda en http://192.168.100.2:8099/.
 
 ------------------------------------------------------------
  ACTUALIZADO POR JARVIS EL 18/09/2026

@@ -72,7 +72,11 @@ JARVIS_PORTATIL/
 └── app/                      ← LA APP ANDROID (incluida en el kit)
     ├── JARVIS.apk                 la app lista para instalar (versión 26.0)
     ├── DOCUMENTACION_JARVIS_APP.md  manual de la app (arquitectura, sellos, UI)
-    └── fuente/                    código fuente (Kotlin + Compose + widget.html)
+    ├── fuente/                    código fuente (Kotlin + Compose + widget.html)
+    └── descarga/                  la página de descarga (botón "siempre la última")
+        ├── index.html                 la página (promoción + botón)
+        ├── servir_descarga.py         servidor (8099) que entrega el APK más nuevo
+        └── ABRIR_DESCARGA.bat         lanzador (abre la página en el navegador)
 ```
 
 ---
@@ -201,6 +205,11 @@ JARVIS_PORTATIL/
   C:\tools\gradle-8.10.2\bin\gradle.bat assembleDebug
   ```
   El APK sale en `fuente\app\build\outputs\apk\debug\app-debug.apk`.
+- **Página de descarga** (`app/descarga/`): página sencilla, con algo de
+  promoción, y un botón "Descargar la app" que entrega SIEMPRE la última versión.
+  El servidor `servir_descarga.py` detecta sola el APK de número más alto
+  (`JARVIS-*-arm64.apk`) y lo sirve en `/app.apk`. Se abre con
+  `ABRIR_DESCARGA.bat` y queda en `http://192.168.100.2:8099/`.
 
 ---
 
