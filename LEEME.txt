@@ -35,6 +35,8 @@ setup/instalar_jarvis.ps1  El instalador automatico
 setup/adaptar_rutas.ps1    Adapta rutas de PC original -> nueva
 omniroute/data/    Mi motor: storage.sqlite + .env (combos y APIs)
 herramientas/      carpeta manos/ y scripts_agente/ (mis scripts)
+app/               LA APP ANDROID: JARVIS.apk lista para instalar (26.0)
+                   + documentacion + codigo fuente para recompilar.
 ARQUITECTURA.md    PLANO DETALLADO del sistema (componentes, flujo,
                    rutas, diagnostico y poderes). Si algo falla o
                    esta mal puesto, el JARVIS del kit lo consulta.
@@ -89,6 +91,14 @@ INICIAR_JARVIS.bat El iniciador que usted ejecuta
 - Vuelva a ejecutar INICIAR_JARVIS.bat; es idempotente (no
   duplica ni rompe).
 - Mensajes mostrados en la consola indican cada paso.
+
+------------------------------------------------------------
+ ACTUALIZADO POR JARVIS EL 05/10/2026
+------------------------------------------------------------
+- LA APP ANDROID QUEDA INCLUIDA EN EL KIT (orden del jefe):
+  carpeta app/ con JARVIS.apk (version 26.0, lista para instalar en el
+  celular), su documentacion completa y el codigo fuente para recompilar.
+  El instalador la deja tambien en la copia de trabajo (JARVIS_PORTATIL\app).
 
 ------------------------------------------------------------
  ACTUALIZADO POR JARVIS EL 18/09/2026

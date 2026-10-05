@@ -6,7 +6,8 @@
 > la referencia para corregirlo.
 >
 > Creado por JARVIS el 01/09/2026 para el señor Wáscar.
-> Versión de arquitectura: 2.1 (sistema Telegram + OmniRoute + arranque/cierre).
+> Versión de arquitectura: 2.2 (sistema Telegram + OmniRoute + arranque/cierre
+> + la app Android incluida en el kit).
 
 ---
 
@@ -62,11 +63,16 @@ JARVIS_PORTATIL/
 │       ├── storage.sqlite         BD con combos, modelos, presets y APIs
 │       └── .env                   variables/llaves del gateway
 │
-└── herramientas/             ← MIS MANOS (scripts reutilizables)
-    ├── manos/                    herramientas del sistema (diagnóstico, admin,
-    │                             ver pantalla, lanzadores, etc.)
-    └── scripts_agente/           scripts de acciones (música, YouTube,
-                                  WhatsApp, capturas, etc.)
+├── herramientas/             ← MIS MANOS (scripts reutilizables)
+│   ├── manos/                    herramientas del sistema (diagnóstico, admin,
+│   │                             ver pantalla, lanzadores, etc.)
+│   └── scripts_agente/           scripts de acciones (música, YouTube,
+│                                 WhatsApp, capturas, etc.)
+│
+└── app/                      ← LA APP ANDROID (incluida en el kit)
+    ├── JARVIS.apk                 la app lista para instalar (versión 26.0)
+    ├── DOCUMENTACION_JARVIS_APP.md  manual de la app (arquitectura, sellos, UI)
+    └── fuente/                    código fuente (Kotlin + Compose + widget.html)
 ```
 
 ---
@@ -177,6 +183,25 @@ JARVIS_PORTATIL/
 - Es portable: solo usa el patrón `jarvis_telegram_bot` y puertos, sin rutas
   fijas, así que sirve igual en el kit USB.
 
+### 3.10 La app Android: `app/`
+- Es la aplicación del jefe para el **celular** (paquete `com.wascar.jarvis`).
+  Habla con el MISMO bot de Telegram y trae **llamada de voz Gemini Live**,
+  widget flotante (esfera + ondas + chat), dictado nativo, filtro de sellos e
+  historial por chat.
+- `app/JARVIS.apk` es la app lista para instalar (versión **26.0**, arm64). El
+  jefe la abre en el teléfono y la instala (activando fuentes desconocidas).
+  También se puede descargar desde la PC donde corra el puente (`/app.apk`).
+- `app/DOCUMENTACION_JARVIS_APP.md` explica toda la app: estructura de archivos,
+  sellos `[[JARVIS:...]]`, estados, barra superior y cómo compilar.
+- `app/fuente/` trae el proyecto Android (Kotlin + Compose): `MainActivity.kt`,
+  `TelegramManager.kt` (TDLib), `GeminiLive.kt`, `assets/widget.html` (toda la
+  interfaz) y los gradle. Para **recompilar** en una PC con JDK 21 y Gradle:
+  ```
+  $env:JAVA_HOME = "C:\tools\jdk-21.0.12.1+1"
+  C:\tools\gradle-8.10.2\bin\gradle.bat assembleDebug
+  ```
+  El APK sale en `fuente\app\build\outputs\apk\debug\app-debug.apk`.
+
 ---
 
 ## 4. FLUJO DE UN MENSAJE (paso a paso)
@@ -250,6 +275,8 @@ apuntando al `admin_bridge.cmd` del kit (las rutas se adaptan con
 | Motor OmniRoute         | `omniroute/data/`                    | (arranca desde el kit, puerto 20128)|
 | Manos (herramientas)    | `herramientas/manos/*`               | (se usan desde el kit)             |
 | Scripts de acciones     | `herramientas/scripts_agente/*`      | (se usan desde el kit)             |
+| App Android (APK)       | `app/JARVIS.apk`                     | (se instala en el celular del jefe)|
+| App Android (fuente)    | `app/fuente/*`                       | (para recompilar la app)           |
 
 > El instalador (`setup/adaptar_rutas.ps1`) re-escribe las rutas viejas de la
 > PC original (`C:\Users\wasc4\...`) hacia las del kit en la PC nueva.
@@ -265,4 +292,5 @@ apuntando al `admin_bridge.cmd` del kit (las rutas se adaptan con
   ser honesto: si le faltan datos, decirlo y ofrecer sincronizarse.
 - Para actualizar el kit desde la PC original: recopiar
   `setup/cerebro/*.md`, `setup/skills/*`, `jarvis/jarvis_telegram_bot.py`,
-  `omniroute/data/*` y `herramientas/*` con las versiones nuevas.
+  `omniroute/data/*`, `herramientas/*` y, para la app, `app/JARVIS.apk`,
+  `app/DOCUMENTACION_JARVIS_APP.md` y `app/fuente/*` con las versiones nuevas.

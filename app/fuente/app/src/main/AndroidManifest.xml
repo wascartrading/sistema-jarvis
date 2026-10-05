@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- Control de volumen: silencia el "beep" del dictado (13/09/2026) -->
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <!-- Nota 23.0 (orden del jefe 05/10/2026): SIN servicio de fondo y SIN
+         exencion de bateria. -->
+    <!-- Avisos (orden del jefe 05/10/2026): capacidad disponible pero SILENCIADA
+         por defecto; el permiso solo se pide si el jefe activa los avisos. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:name=".JarvisApp"
+        android:allowBackup="true"
+        android:hardwareAccelerated="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
+        android:theme="@style/Theme.Jarvis">
+
+        <!-- (23.0) Sin servicio de fondo: ya no hay componente que corra por detras. -->
+
+        <!-- La app abre la MISMA interfaz del widget (esfera + chat) que sirve
+             la PC por WiFi local, dentro de un WebView a pantalla completa. -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize"
+            android:configChanges="orientation|screenSize|keyboardHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

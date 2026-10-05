@@ -179,6 +179,9 @@ if (Test-Path "$KitDir\herramientas") {
 if (Test-Path "$KitDir\SISTEMA_JARVIS.md") {
     Copy-Item "$KitDir\SISTEMA_JARVIS.md" "$local\" -Force
 }
+if (Test-Path "$KitDir\app") {
+    Copy-Item "$KitDir\app" (Join-Path $local 'app') -Recurse -Force
+}
 if (Test-Path $kitScriptPath) {
     # Adaptar la copia local (bot + herramientas + cerebro copiado)
     & $kitScriptPath -Antigua $antigua -KitDir $KitDir -UserProfile $env:USERPROFILE -Target $local
@@ -239,6 +242,9 @@ if ($botProc) {
     Write-Host "   Bot lanzado desde $botPath. Icono de JARVIS en la bandeja." -ForegroundColor Green
 }
 
+Write-Host ""
+Write-Host "LA APP ANDROID quedo en:  $local\app\JARVIS.apk" -ForegroundColor Cyan
+Write-Host "Copiela al celular e instalela (active fuentes desconocidas)." -ForegroundColor Gray
 Write-Host ""
 Write-Host "=== INSTALACION COMPLETA ===" -ForegroundColor Green
 Write-Host "JARVIS deberia estar en linea por Telegram. Si no responde," -ForegroundColor Gray

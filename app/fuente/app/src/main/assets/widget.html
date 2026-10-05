@@ -1,0 +1,2789 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<title>JARVIS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<style>
+  /* ===== Ajustes SOLO para la APP Android (no tocan el widget de la PC) ===== */
+  html, body { height: 100%; background: #010a12; -webkit-text-size-adjust: 100%; }
+  /* La app ocupa toda la pantalla (bajo la barra de estado del telefono). El
+     WebView ya recibe el margen de las barras del sistema; aqui solo damos aire
+     interno para que nada choque con la hora ni las notificaciones. */
+  #app { position: fixed !important; inset: 0 !important; justify-content: flex-start !important; }
+  /* Orden (orden del jefe 04/10/2026): la barra va ARRIBA y el chat se
+     despliega DEBAJO, ocupando el resto de la pantalla. */
+  .barra {
+    order: -1 !important;
+    height: auto !important;
+    min-height: 58px !important;
+      padding-top: calc(18px + env(safe-area-inset-top)) !important;
+    padding-bottom: 12px !important;
+    border-bottom: 1px solid rgba(var(--jc), 0.22);
+  }
+  .chat {
+    order: 0 !important;
+    flex: 1 1 auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+  /* Tipografia legible en telefono (el widget de PC usa 10.5px). */
+  .msg { font-size: 13px !important; line-height: 1.45 !important; max-width: 88% !important; }
+  .msg code { font-size: 12px !important; }
+  /* Enlaces presionables en el chat (orden del jefe 04/10/2026). */
+  .msg a.link-jefe {
+    color: #22e6ff !important;
+    text-decoration: underline !important;
+    word-break: break-all !important;
+    cursor: pointer !important;
+  }
+  .chat-input { font-size: 15px !important; padding: 9px 11px !important; }
+  .chat-titulo { font-size: 10px !important; }
+  .burbuja-texto { font-size: 13px !important; }
+  .frase { display: none !important; }
+  .estado { font-size: 11.5px !important; }
+  /* La barra vive ARRIBA: su fila de estado y onda se centra sola (orden 04/10/2026). */
+  .info { justify-content: center !important; }
+  .fila { align-items: center !important; }
+  .btn { width: 34px !important; height: 34px !important; }
+  .btn svg { width: 16px !important; height: 16px !important; }
+  .esfera-zona { width: 46px !important; height: 46px !important; }
+  /* El estado "listening" se muestra como "JARVIS, EN LÍNEA" (orden del jefe 04/10/2026). */
+  body.st-listening .estado { color: rgb(var(--jc)) !important; }
+  /* Pantalla nativa (orden del jefe 04/10/2026): SIN marco. El widget de PC trae
+     un borde interior cian que en el telefono se ve como un recuadro; aqui se
+     anula del todo, en todos los estados. */
+  #app, body.activo #app, body.st-speaking #app, body.st-muted #app {
+    box-shadow: none !important;
+    border: 0 !important;
+  }
+  /* Sin el rótulo duplicado "JARVIS · CHAT": la barra de arriba ya identifica. */
+  .chat-cab { display: none !important; }
+  /* ===== OVERLAY DE LLAMADA (orden del jefe 04/10/2026) ===== */
+  /* Al tocar la esfera: la esfera crece a pantalla completa con sus animaciones,
+     como un widget superpuesto tipo llamada, con botones de mutear y colgar. */
+  #call {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 9999 !important;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    background:
+      radial-gradient(120% 90% at 50% 30%, rgba(var(--jc), 0.14) 0%, transparent 60%),
+      linear-gradient(165deg, #061a2c 0%, #04121f 50%, #010a12 100%) !important;
+  }
+  body.en-llamada #call { display: flex !important; animation: entrar 0.3s ease both; }
+  .call-esfera {
+    position: relative;
+    width: 62vw; height: 62vw;
+    max-width: 340px; max-height: 340px;
+  }
+  .call-esfera #esferaG {
+    position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+  }
+  .call-esfera .halo {
+    position: absolute; inset: -6%; border-radius: 50%;
+    background: radial-gradient(circle, rgba(var(--jc), 0.22) 0%, transparent 68%);
+    opacity: 0.8;
+  }
+  .call-esfera .orbita {
+    position: absolute; inset: 0; border-radius: 50%;
+    border: 1.5px solid rgba(var(--jc), 0.5);
+    animation: pulso 2.2s ease-out infinite;
+  }
+  .call-nombre {
+    font-size: 13px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: rgb(var(--jc));
+  }
+  .call-estado {
+    font-size: 11px; letter-spacing: 1px; color: rgba(214, 236, 250, .8);
+    min-height: 14px;
+  }
+  .call-botones { display: flex; gap: 26px; align-items: center; }
+  .call-btn {
+    width: 62px; height: 62px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(var(--jc), 0.4);
+    background: rgba(var(--jc), 0.1);
+    color: rgba(220, 240, 255, 0.95);
+    cursor: pointer; transition: all .16s ease;
+  }
+  .call-btn svg { width: 26px; height: 26px; }
+  .call-btn.mute { color: #fff; }
+  .call-btn.mute.mudo {
+    background: rgba(248, 113, 113, .18);
+    border-color: rgba(248, 113, 113, .6);
+    color: rgb(252, 165, 165);
+  }
+  .call-btn.colgar {
+    background: rgba(239, 68, 68, .9);
+    border-color: rgba(239, 68, 68, 1);
+    color: #fff;
+  }
+  /* Microfono en dictado: se marca en cian para saber que esta escuchando. */
+  #btnMic.dictando {
+    background: rgba(var(--jc), .28) !important;
+    border-color: rgba(var(--jc), .7) !important;
+    color: #fff !important;
+  }
+</style>
+<script src="temas_esfera.js"></script>
+<script>
+/* =========================================================================
+   Puente Android: emula window.pywebview.api (lo que el widget espera de
+   pywebview en la PC). Cada llamada se resuelve como Promise para que el
+   propio JavaScript del widget (.then) siga funcionando sin cambios.
+   ========================================================================= */
+(function () {
+  function jparse(s, def) { try { return JSON.parse(s); } catch (e) { return def; } }
+  var api = {
+    enviar_mensaje: function (t) {
+      try { Android.enviar_mensaje(String(t == null ? '' : t)); } catch (e) {}
+      return Promise.resolve();
+    },
+    interrumpir: function () { try { Android.interrumpir(); } catch (e) {} return Promise.resolve(); },
+    reiniciar_jarvis: function () { try { Android.reiniciar_jarvis(); } catch (e) {} return Promise.resolve(); },
+    notif_estado: function () { try { return Promise.resolve(String(Android.notif_estado())); } catch (e) { return Promise.resolve('0'); } },
+    set_notif: function (v) { try { Android.set_notif(String(v)); } catch (e) {} return Promise.resolve(); },
+    abrir_enlace: function (url) { try { Android.abrir_enlace(String(url || '')); } catch (e) {} return Promise.resolve(); },
+    abrir_ajustes: function () { try { Android.abrir_ajustes(); } catch (e) {} return Promise.resolve(); },
+    adjuntar: function () { try { Android.adjuntar(); } catch (e) {} return Promise.resolve(); },
+    toggle_mic: function () {
+      try { return Promise.resolve(jparse(Android.toggle_mic(), { ok: true })); }
+      catch (e) { return Promise.resolve({ ok: true }); }
+    },
+    get_sphere_theme: function () {
+      try { return Promise.resolve(jparse(Android.get_sphere_theme(), { ok: false })); }
+      catch (e) { return Promise.resolve({ ok: false }); }
+    },
+    estado: function () {
+      try { return Promise.resolve(jparse(Android.estado(), { ok: false })); }
+      catch (e) { return Promise.resolve({ ok: false }); }
+    },
+    expandir: function (v) { try { Android.expandir(!!v); } catch (e) {} return Promise.resolve(); },
+    abrir_ventana: function () { try { Android.abrir_ventana(); } catch (e) {} return Promise.resolve(); },
+    llamada_iniciar: function () { try { Android.llamada_iniciar(); } catch (e) {} return Promise.resolve(); },
+    llamada_cerrar: function () { try { Android.llamada_cerrar(); } catch (e) {} return Promise.resolve(); },
+    llamada_mute: function (m) { try { Android.llamada_mute(!!m); } catch (e) {} return Promise.resolve(); },
+    historial_leer: function () { try { return Promise.resolve({ leer: Android.historial_leer() }); } catch (e) { return Promise.resolve({ leer: "[]" }); } },
+    historial_guardar: function (j) { try { Android.historial_guardar(String(j || '[]')); } catch (e) {} return Promise.resolve(); },
+    dar_foco: function () { try { Android.dar_foco(); } catch (e) {} return Promise.resolve(); },
+    ocultar_desactivar: function () { try { Android.ocultar_desactivar(); } catch (e) {} return Promise.resolve(); },
+    dictar: function () { try { Android.dictar(); } catch (e) {} return Promise.resolve(); },
+    dictado: function (activo) { try { Android.dictado(!!activo); } catch (e) {} return Promise.resolve(); },
+    drag_start: function () {}, drag_nativo: function () {}, drag_end: function () {},
+    menu_contextual: function () {},
+    // --- ACCESO A TELEGRAM (orden del jefe 04/10/2026): todos los datos de una vez.
+    credenciales_leer: function () {
+      try { return Promise.resolve(jparse(Android.credenciales_leer(), { ok: false })); }
+      catch (e) { return Promise.resolve({ ok: false }); }
+    },
+    iniciar_acceso: function (tel, id, hash, bot) {
+      try { Android.iniciar_acceso(String(tel || ''), String(id || ''), String(hash || ''), String(bot || '')); }
+      catch (e) {}
+      return Promise.resolve();
+    },
+    enviar_paso: function (fase, valor) {
+      try { Android.enviar_paso(String(fase || ''), String(valor || '')); }
+      catch (e) {}
+      return Promise.resolve();
+    },
+    acceso_paso: function (r) { try { Android.acceso_paso(String(r || '')); } catch (e) {} return Promise.resolve(); },
+    listo: function (v) { try { Android.listo(!!v); } catch (e) {} return Promise.resolve(); },
+    cerrar_acceso: function () { try { Android.cerrar_acceso(); } catch (e) {} return Promise.resolve(); }
+  };
+  window.pywebview = { api: api };
+  window.addEventListener('DOMContentLoaded', function () {
+    setTimeout(function () {
+      try { window.dispatchEvent(new Event('pywebviewready')); } catch (e) {}
+    }, 40);
+  });
+})();
+</script>
+<style>
+  /* IMPORTANTE — El diseño va A SANGRE (ocupa toda la ventana).
+     WebView2 pinta un fondo opaco #202020 que ignora la transparencia, así que
+     cualquier margen o border-radius dejaría ver un rectángulo gris. El
+     redondeado de esquinas lo aplica el compositor de Windows (DWM). */
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    -webkit-user-select: none;
+    user-select: none;
+    cursor: default;
+  }
+  :root { --jc: 0, 255, 255; }   /* color actual de JARVIS */
+
+  /* Pantalla de carga ELIMINADA (orden del jefe 04/10/2026): arranque directo. */
+
+  /* La barra va ABAJO y el panel crece hacia ARRIBA: la ventana se ancla por su
+     borde inferior, así el widget no "baja" al expandirse. */
+  #app {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    background:
+      radial-gradient(120% 160% at 10% 100%, rgba(var(--jc), 0.13) 0%, transparent 58%),
+      linear-gradient(160deg, #061a2c 0%, #04121f 48%, #010a12 100%);
+    box-shadow: inset 0 0 0 1px rgba(var(--jc), 0.2);
+    transition: box-shadow 0.4s ease;
+  }
+  body.activo #app { box-shadow: inset 0 0 0 1px rgba(var(--jc), 0.46); }
+  body.st-speaking #app { box-shadow: inset 0 0 0 1px rgba(var(--jc), 0.66); }
+
+  /* Rejilla técnica tenue */
+  #app::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(var(--jc), 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(var(--jc), 0.05) 1px, transparent 1px);
+    background-size: 15px 15px;
+    mask-image: linear-gradient(20deg, #000 0%, transparent 65%);
+    -webkit-mask-image: linear-gradient(20deg, #000 0%, transparent 65%);
+  }
+
+  /* ---- Panel de respuesta (arriba, imagen + texto en fila) ---- */
+  .panel {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: none;
+    gap: 9px;
+    padding: 9px 11px 5px;
+    overflow: hidden;
+  }
+  body.expandido .panel { display: flex; animation: entrar 0.28s ease both; }
+  @keyframes entrar { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
+
+  /* Imagen con tamaño FIJO: así el layout nunca salta al cargar */
+  .foto {
+    position: relative;
+    width: 62px;
+    height: 62px;
+    flex: 0 0 auto;
+    border-radius: 10px;
+    overflow: hidden;
+    display: none;
+    background: rgba(var(--jc), 0.07);
+    box-shadow: 0 0 0 1px rgba(var(--jc), 0.28), 0 3px 12px rgba(0, 0, 0, 0.5);
+  }
+  .foto.visible { display: block; }
+  .foto img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+  .foto img.cargada { opacity: 1; }
+  /* Brillo sutil mientras carga */
+  .foto::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(100deg, transparent 25%, rgba(var(--jc), 0.16) 50%, transparent 75%);
+    background-size: 220% 100%;
+    animation: brillo 1.2s ease-in-out infinite;
+  }
+  .foto.lista::after { display: none; }
+  @keyframes brillo { from { background-position: 180% 0; } to { background-position: -60% 0; } }
+
+  .cuerpo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .titulo {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: rgb(var(--jc));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: none;
+  }
+  .titulo.visible { display: block; }
+
+  /* Texto pequeño: solo para seguir lo que dice, no para leer en detalle */
+  .texto {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    font-size: 10px;
+    line-height: 1.45;
+    color: rgba(222, 240, 252, 0.9);
+    overflow-wrap: anywhere;
+    padding-right: 3px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(var(--jc), 0.3) transparent;
+  }
+  .texto::-webkit-scrollbar { width: 4px; }
+  .texto::-webkit-scrollbar-thumb { background: rgba(var(--jc), 0.3); border-radius: 2px; }
+  .texto code {
+    font-family: Consolas, monospace;
+    font-size: 9.5px;
+    background: rgba(var(--jc), 0.12);
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+  .cursor {
+    display: none;
+    width: 5px;
+    height: 10px;
+    background: rgb(var(--jc));
+    vertical-align: -1px;
+    margin-left: 2px;
+    animation: parpadeo 0.9s steps(2) infinite;
+  }
+  body.st-speaking .cursor { display: inline-block; }
+  @keyframes parpadeo { 50% { opacity: 0; } }
+
+  /* Separador entre panel y barra */
+  .sep {
+    display: none;
+    height: 1px;
+    margin: 0 12px;
+    flex-shrink: 0;
+    background: linear-gradient(90deg, transparent, rgba(var(--jc), 0.3), transparent);
+  }
+  body.expandido .sep { display: block; }
+
+  /* ---- Burbuja superior (respuestas con el chat minimizado) ----
+     Aparece ENCIMA del icono flotante, sin abrir el mini-chat. La ventana
+     crece hacia arriba (mecanismo expandir); la barra se queda abajo y la
+     burbuja ocupa el espacio extra, con flecha hacia la esfera. */
+  .burbuja {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    display: none;
+    flex-direction: column;
+    margin: 7px 9px 0;
+    padding: 8px 10px 9px;
+    border-radius: 11px;
+    background: linear-gradient(168deg, rgba(7, 28, 46, 0.97), rgba(4, 18, 31, 0.97));
+    border: 1px solid rgba(var(--jc), 0.38);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.55), inset 0 0 26px rgba(var(--jc), 0.08);
+    overflow: hidden;
+  }
+  body.expandido .burbuja { display: flex; animation: entrar 0.24s ease both; }
+  /* TEXTO ENCIMA DEL WIDGET DESACTIVADO (03/10/2026, orden del jefe): la
+     burbuja superior y el panel de respuesta ya no se muestran; solo quedan la
+     esfera y sus efectos normales. */
+  .burbuja, .panel { display: none !important; }
+  /* Flecha que apunta hacia la barra (la esfera) */
+  .burbuja::after {
+    content: '';
+    position: absolute;
+    left: 44px;
+    bottom: -7px;
+    width: 12px;
+    height: 12px;
+    background: rgba(4, 18, 31, 0.97);
+    border-right: 1px solid rgba(var(--jc), 0.38);
+    border-bottom: 1px solid rgba(var(--jc), 0.38);
+    transform: rotate(45deg);
+    border-bottom-right-radius: 3px;
+  }
+  .burbuja-autor {
+    flex-shrink: 0;
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    color: rgb(var(--jc));
+    margin-bottom: 3px;
+  }
+  .burbuja-texto {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    font-size: 10.5px;
+    line-height: 1.45;
+    color: rgba(235, 245, 255, 0.94);
+    white-space: pre-wrap;   /* formato (fix 05/10/2026) */
+    overflow-wrap: anywhere;
+    padding-right: 3px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(var(--jc), 0.3) transparent;
+  }
+  .burbuja-texto::-webkit-scrollbar { width: 4px; }
+  .burbuja-texto::-webkit-scrollbar-thumb { background: rgba(var(--jc), 0.3); border-radius: 2px; }
+  .burbuja-texto.jefe { color: rgba(196, 232, 255, 0.96); }
+
+  /* ---- Barra compacta (abajo) ----
+     Reparto: esfera · estado · onda (rellena el hueco) · botón.
+     La onda existe justamente para que no quede un vacío muerto entre el
+     rótulo y el botón de expandir. */
+  .barra {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 56px;
+    padding: 0 10px 0 9px;
+    flex-shrink: 0;
+  }
+
+  .esfera-zona {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    cursor: grab;
+  }
+  .esfera-zona:active { cursor: grabbing; }
+  #esfera { position: absolute; inset: 0; display: block; width: 100%; height: 100%; }
+  .halo {
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(var(--jc), 0.26) 0%, transparent 66%);
+    opacity: 0.45;
+    transition: opacity 0.4s ease;
+  }
+  body.activo .halo { opacity: 1; }
+  .orbita {
+    position: absolute;
+    inset: -1px;
+    border-radius: 50%;
+    border: 1px solid rgba(var(--jc), 0.45);
+    opacity: 0;
+    pointer-events: none;
+  }
+  body.st-listening .orbita { animation: pulso 2s ease-out infinite; }
+  /* En espera de la palabra clave: latido lento, casi imperceptible. Señala que
+     JARVIS sigue ahí sin dar la impresión de estar transmitiendo. */
+  body.st-armed .orbita { animation: pulso 3.6s ease-out infinite; opacity: .55; }
+  /* En reposo: aún más lento, pero sigue latiendo. Que se note la diferencia con
+     inactivo (micrófono apagado), donde no hay latido ninguno. */
+  body.st-asleep .orbita { animation: pulso 5.5s ease-out infinite; opacity: .38; }
+  body.st-speaking  .orbita { animation: pulso 1.05s ease-out infinite; }
+  body.st-thinking  .orbita {
+    opacity: 1;
+    border-color: rgba(var(--jc), 0.8);
+    border-right-color: transparent;
+    border-bottom-color: transparent;
+    animation: girar 0.5s linear infinite;
+  }
+  @keyframes pulso { 0% { opacity: .8; transform: scale(.92); } 100% { opacity: 0; transform: scale(1.4); } }
+  @keyframes girar { to { transform: rotate(360deg); } }
+
+  /* La info NO se estira: se ajusta a su contenido y el sobrante se lo queda la
+     onda. Así el rótulo queda junto a la esfera y no flotando en medio. */
+  .info { flex: 0 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+  .fila { display: flex; align-items: center; gap: 5px; }
+  .punto {
+    width: 4px; height: 4px; border-radius: 50%;
+    background: rgb(var(--jc));
+    box-shadow: 0 0 6px rgb(var(--jc));
+    flex-shrink: 0;
+  }
+  body.activo .punto { animation: latir 1.7s ease-in-out infinite; }
+  @keyframes latir { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.35;transform:scale(.6)} }
+  /* PROCESANDO/CARGANDO (orden del jefe 04/10/2026): la lucesita parpadea mas
+     intermitente (encendido/apagado seco) para denotar actividad. */
+  body.st-thinking .punto { animation: parpadeoLuz .34s steps(2, jump-none) infinite; }
+  @keyframes parpadeoLuz { 0%,49%{opacity:1;transform:scale(1.15)} 50%,100%{opacity:.15;transform:scale(.7)} }
+  .estado {
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgb(var(--jc));
+    white-space: nowrap;
+  }
+  body.st-muted .estado { color: rgba(148, 163, 184, .9); }
+  body.st-muted .punto { background: rgba(148,163,184,.9); box-shadow: none; }
+
+  /* Escribiendo: rojo y con más presencia. JARVIS tiene el teclado tomado,
+     conviene que se vea de un vistazo para no escribir encima. */
+  body.st-writing .estado {
+    color: rgb(255, 70, 70);
+    text-shadow: 0 0 8px rgba(255, 45, 45, .75);
+    animation: latirTexto 1s ease-in-out infinite;
+  }
+  body.st-writing .punto {
+    animation: latir .55s ease-in-out infinite;
+    box-shadow: 0 0 10px rgb(255, 45, 45), 0 0 18px rgba(255, 45, 45, .55);
+  }
+  @keyframes latirTexto { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+  /* Frase corta de la barra (solo cuando el panel está cerrado) */
+  .frase {
+    font-size: 9.5px;
+    line-height: 1.25;
+    color: rgba(214, 236, 250, .82);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+  }
+  .frase:empty, body.expandido .frase { display: none; }
+
+  /* Medidor de barras: se come el espacio libre entre el rótulo y el botón, que
+     era lo que se veía vacío. En reposo casi plano; hablando, salta. */
+  .onda-zona {
+    flex: 1 1 auto;
+    min-width: 26px;
+    height: 20px;
+    position: relative;
+    opacity: .55;
+    transition: opacity .35s ease;
+    pointer-events: none;
+  }
+  body.activo .onda-zona { opacity: .9; }
+  body.st-speaking .onda-zona, body.st-writing .onda-zona { opacity: 1; }
+  #onda { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+  .btn {
+    width: 27px; height: 27px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: rgba(var(--jc), .09);
+    color: rgba(186, 230, 253, .85);
+    cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
+    transition: all .16s ease;
+  }
+  .btn svg { width: 13px; height: 13px; }
+  .btn:hover { background: rgba(var(--jc), .2); border-color: rgba(var(--jc), .5); color: #fff; }
+  /* Boton altavoz: en estado desactivado (voz apagada) se ve tacado/atenuado */
+  .btn.off { color: rgba(248, 113, 113, .8); background: rgba(248, 113, 113, .07); border-color: rgba(248, 113, 113, .28); }
+  .btn.off:hover { color: rgba(252, 165, 165, 1); background: rgba(248, 113, 113, .14); border-color: rgba(248, 113, 113, .5); }
+  /* Boton de enviar que se convierte en ROJO de interrumpir mientras JARVIS
+     trabaja (orden del jefe 04/10/2026). Se alterna el icono por CSS. */
+  .btn .ic-stop { display: none; }
+  .btn.stop {
+    color: #fff;
+    background: rgba(239, 68, 68, .92);
+    border-color: rgba(239, 68, 68, 1);
+    animation: latidoStop 1.1s ease-in-out infinite;
+  }
+  .btn.stop .ic-enviar { display: none; }
+  .btn.stop .ic-stop { display: block; }
+  @keyframes latidoStop {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, .55); }
+    50% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+  }
+
+  /* ---- Mini-chat (se despliega HACIA ABAJO, mismo estilo del widget) ---- */
+  .chat {
+    position: relative;
+    display: none;
+    flex-direction: column;
+    height: 360px;
+    min-height: 0;
+    padding: 8px 10px 8px;
+    gap: 6px;
+  }
+  body.chat-abierto .chat { display: flex; animation: entrar 0.28s ease both; }
+  .chat-cab {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .chat-titulo {
+    font-size: 8.5px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: rgba(var(--jc), 0.85);
+  }
+  .chat-msgs {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    /* ANCHO SIEMPRE ESTABLE (fix 04/10/2026): la barra de scroll NO debe robar
+       ancho ni aparecer/desaparecer cambiando el espacio de los mensajes. Eso
+       hacia que al llegar un mensaje nuevo (auto-scroll) el ancho cambiara y los
+       mensajes se "recalculen" viendose bugueados. */
+    scrollbar-gutter: stable;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 2px 2px 4px;
+    scrollbar-width: none;   /* Firefox: sin barra que ocupe espacio */
+    -webkit-user-select: text;
+    user-select: text;
+    /* BLINDAJE DE FLUIDEZ (04/10/2026): aislar el pintado de la lista para que
+       agregar o recortar mensajes NO recalcule el resto de la ventana. Con
+       chats largos esto evita el lagueo y el scroll a tirones. */
+    contain: content;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* La barra webkit NUNCA reserva ancho: se pinta como overlay fino encima del
+     contenido. Asi el ancho de los mensajes es CONSTANTE y no se recalcula. */
+  .chat-msgs::-webkit-scrollbar { width: 0; height: 0; }
+  .chat-msgs::-webkit-scrollbar-track { background: transparent; }
+  .chat-msgs::-webkit-scrollbar-thumb { background: transparent; }
+  .msg {
+    max-width: 88%;
+    padding: 5px 7px;
+    border-radius: 9px;
+    font-size: 10.5px;
+    line-height: 1.4;
+    /* FORMATO (fix 05/10/2026): conserva los saltos de linea y los espacios
+       del mensaje tal como llegan (antes se pegaban en un solo bloque). */
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    color: rgba(235, 245, 255, 0.95);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(var(--jc), 0.18);
+    animation: msgEntrar 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  /* Los mensajes del historial NO animan: aparecen ya puestos al abrir. */
+  .msg.sin-anim { animation: none !important; }
+  /* Hora del mensaje (ajuste 05/10/2026): pequenita, abajo a la DERECHA pero EN
+     LA MISMA LINEA que las ultimas palabras (como WhatsApp), no en una linea
+     aparte. El flotante se pega al final de la ultima linea; el ::after cierra
+     el globo para que la hora no se salga de el. */
+  .msg .hora {
+    float: right;
+    margin-left: 8px;
+    /* Pegada al PIE de su propia linea (esquina inferior), no centrada
+       (orden del jefe 05/10/2026): la linea mide ~14.7px y la hora ~9.6px. */
+    margin-top: 5px;
+    font-size: 8px;
+    line-height: 1.2;
+    opacity: 0.55;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+  }
+  .msg::after { content: ''; display: block; clear: both; }
+  /* Imagen en el chat (19.0): burbuja con la foto, tamano acotado. */
+  .msg-img { padding: 4px !important; }
+  .img-chat {
+    display: block;
+    max-width: 190px;
+    max-height: 190px;
+    width: auto;
+    height: auto;
+    border-radius: 7px;
+    object-fit: cover;
+  }
+  .msg-jefe .img-chat { margin-left: auto; }
+  .img-aviso { font-size: 10px; opacity: 0.7; display: block; padding: 4px; }
+  .msg-img.img-fallida { padding: 6px !important; }
+  /* Visor de imagen a pantalla completa con zoom (19.1). */
+  .lupa {
+    position: fixed; inset: 0; z-index: 9999;
+    background: rgba(1, 8, 16, 0.94);
+    display: none; align-items: center; justify-content: center;
+    touch-action: none;      /* el pellizco/arrastre lo maneja el JS (fix 19.9) */
+    overscroll-behavior: none;
+  }
+  .lupa.visible { display: flex; }
+  .lupa img {
+    max-width: 96vw; max-height: 88vh;
+    object-fit: contain; border-radius: 6px;
+    transition: transform 0.12s ease;
+    touch-action: none;      /* sin esto el WebView hace su zoom y rompe el gesto */
+    transform-origin: center center;
+    will-change: transform;
+  }
+  .lupa .lupa-x {
+    position: absolute; top: 14px; right: 14px;
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 1px solid rgba(var(--jc), 0.5);
+    background: rgba(var(--jc), 0.18);
+    color: rgb(var(--jc)); font-size: 16px; cursor: pointer;
+  }
+
+  /* ===== PANEL DE AJUSTES (ruedita) — orden del jefe 04/10/2026 ===== */
+  #panelAjustes {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+  flex-direction: column;
+  /* Que TODO el panel se pueda recorrer con el dedo (la firma va al final). */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  /* FLUIDEZ (05/10/2026): se quito el backdrop-filter. El fondo ya es 97 %
+     opaco (el desenfoque no se notaba) y costaba una pasada de GPU por cuadro
+     sobre TODA la pantalla. */
+  background: rgba(2, 12, 22, 0.985);
+    padding: calc(18px + env(safe-area-inset-top)) 14px 14px;
+  }
+  body.ajustes-abierto #panelAjustes { display: flex; }
+/* Firma al pie de Ajustes (orden del jefe 05/10/2026). */
+.aj-firma {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 9px;
+  letter-spacing: 0.4px;
+  opacity: 0.42;
+  color: rgb(var(--jc));
+}
+  .aj-cab {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .aj-titulo {
+    font-size: 15px; font-weight: 600; letter-spacing: .06em;
+    color: rgb(var(--jc));
+  }
+  .aj-cerrar {
+    background: transparent; border: 1px solid rgba(var(--jc), .35);
+    color: rgba(235,245,255,.9); border-radius: 8px;
+    width: 30px; height: 30px; font-size: 14px; cursor: pointer;
+  }
+  .aj-seccion {
+    font-size: 11px; letter-spacing: .08em; text-transform: uppercase;
+    color: rgba(var(--jc), .75); margin-bottom: 8px;
+  }
+  .aj-opciones { display: flex; flex-direction: column; gap: 8px; }
+  .aj-op {
+    background: rgba(var(--jc), .10);
+    border: 1px solid rgba(var(--jc), .28);
+    color: rgba(235,245,255,.95);
+    border-radius: 10px; padding: 12px 14px;
+    font-size: 13px; text-align: left; cursor: pointer;
+    transition: background .15s ease, border-color .15s ease;
+  }
+  .aj-op:hover { background: rgba(var(--jc), .18); }
+  .aj-op.activo {
+    background: rgba(var(--jc), .26);
+    border-color: rgb(var(--jc));
+    box-shadow: 0 0 10px rgba(var(--jc), .35);
+  }
+  /* Botón "Acceso Telegram" (abre el panel de datos, orden 04/10/2026). */
+  .aj-op.aj-acceso {
+    margin-top: 16px;
+    background: rgba(var(--jc), .16);
+    border-color: rgba(var(--jc), .5);
+    font-weight: 600;
+  }
+
+  /* ===== PANEL DE ACCESO A TELEGRAM (orden del jefe 04/10/2026) ===== */
+  #panelAcceso {
+    display: none; position: absolute; inset: 0; z-index: 60;
+    flex-direction: column;
+  /* FLUIDEZ (05/10/2026): sin backdrop-filter (98.5 % opaco: no se notaba). */
+  background: rgba(2, 12, 22, 0.99);
+    padding: calc(16px + env(safe-area-inset-top)) 16px 16px;
+    overflow-y: auto; -webkit-overflow-scrolling: touch;
+  }
+  body.acceso-abierto #panelAcceso { display: flex; }
+  .ac-cab {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .ac-titulo {
+    font-size: 15px; font-weight: 700; letter-spacing: .05em;
+    color: rgb(var(--jc));
+  }
+  .ac-cerrar {
+    background: transparent; border: 1px solid rgba(var(--jc), .35);
+    color: rgba(235,245,255,.9); border-radius: 8px;
+    width: 30px; height: 30px; font-size: 14px; cursor: pointer;
+  }
+  .ac-nota {
+    font-size: 12px; line-height: 1.45;
+    color: rgba(220,235,255,.72); margin-bottom: 14px;
+  }
+  .ac-lbl {
+    font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
+    color: rgba(var(--jc), .8); margin: 8px 0 5px;
+  }
+  .ac-inp {
+    width: 100%; box-sizing: border-box;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(var(--jc), .32);
+    border-radius: 10px; padding: 11px 12px;
+    color: #eaf6ff; font-size: 15px; outline: none;
+  }
+  .ac-inp:focus { border-color: rgb(var(--jc)); box-shadow: 0 0 8px rgba(var(--jc), .3); }
+  .ac-inp.bloq { opacity: .55; }
+  .ac-btn {
+    margin-top: 16px; width: 100%;
+    background: rgba(var(--jc), .22);
+    border: 1px solid rgb(var(--jc));
+    color: #eaf6ff; border-radius: 12px; padding: 13px;
+    font-size: 15px; font-weight: 700; letter-spacing: .06em; cursor: pointer;
+  }
+  .ac-btn:active { background: rgba(var(--jc), .38); }
+  .ac-msg { margin-top: 12px; font-size: 13px; line-height: 1.5; color: rgba(255,215,120,.95); }
+  .ac-paso { margin-top: 10px; font-size: 12px; line-height: 1.5; color: rgba(220,235,255,.75); }
+  .ac-ok { margin-top: 16px; text-align: center; }
+  .ac-ok-txt { font-size: 14px; color: #7CFC9A; margin-bottom: 12px; }
+
+  /* ===== LOS 4 EFECTOS DE APARICIÓN DE MENSAJES ===== */
+  /* 1) Escribir (por defecto): máquina de escribir con cursor parpadeante. */
+  .msg.fx-escribir { animation: none !important; }
+  .msg.fx-escribir .cursor-esc {
+    display: inline-block; width: 6px; height: 12px;
+    background: rgb(var(--jc)); vertical-align: -2px; margin-left: 2px;
+    animation: parpadeo 0.8s steps(2) infinite;
+  }
+  /* 2) Deslizar: sube y entra (el efecto actual, elegante). */
+  .msg.fx-deslizar { animation: msgEntrar 0.42s cubic-bezier(0.22,1,0.36,1) both; }
+  /* 3) Fundido: solo opacidad. */
+  .msg.fx-fundido { animation: fxFundido 0.5s ease both; }
+  @keyframes fxFundido { from { opacity: 0; } to { opacity: 1; } }
+  /* 4) Zoom: crece desde el centro. */
+  .msg.fx-zoom { animation: fxZoom 0.4s ease-out both; }
+  @keyframes fxZoom { from { opacity: 0; transform: scale(0.7); } to { opacity: 1; transform: scale(1); } }
+  /* 5) Rebote: cae y rebota suave. */
+  .msg.fx-rebote { animation: fxRebote 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+  @keyframes fxRebote {
+    0% { opacity: 0; transform: translateY(-14px) scale(0.94); }
+    65% { opacity: 1; transform: translateY(3px) scale(1.02); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  /* 6) Glitch: entra con un parpadeo digital del color del tema. */
+  .msg.fx-glitch { animation: fxGlitch 0.5s steps(6) both; }
+  @keyframes fxGlitch {
+    0% { opacity: 0; transform: translateX(-3px); filter: hue-rotate(60deg); }
+    50% { opacity: 1; transform: translateX(3px); }
+    100% { opacity: 1; transform: translateX(0); filter: none; }
+  }
+  /* 7) Máquina: aparece en barrido vertical, como una impresora. */
+  .msg.fx-maquina { animation: fxMaquina 0.45s ease-out both; }
+  @keyframes fxMaquina {
+    0% { opacity: 0; clip-path: inset(0 0 100% 0); }
+    100% { opacity: 1; clip-path: inset(0 0 0 0); }
+  }
+  /* 8) Neón: enciende con un resplandor fuerte del color del tema. */
+  .msg.fx-neon { animation: fxNeon 0.55s ease-out both; }
+  @keyframes fxNeon {
+    0% { opacity: 0; box-shadow: 0 0 0 rgba(var(--jc), 0); }
+    45% { opacity: 1; box-shadow: 0 0 16px rgba(var(--jc), 0.85); }
+    100% { opacity: 1; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); }
+  }
+  /* Aparicion elegante de los mensajes (orden del jefe 04/10/2026):
+     sube un poco, crece apenas y aparece con un brillo tenue del color del tema. */
+  @keyframes msgEntrar {
+    0% {
+      opacity: 0;
+      transform: translateY(10px) scale(0.96);
+      filter: blur(3px);
+      box-shadow: 0 0 0 rgba(var(--jc), 0);
+    }
+    60% {
+      opacity: 1;
+      filter: blur(0);
+      box-shadow: 0 0 10px rgba(var(--jc), 0.35);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    }
+  }
+  .msg code {
+    font-family: Consolas, monospace;
+    font-size: 9.5px;
+    background: rgba(var(--jc), 0.12);
+    padding: 1px 4px;
+    border-radius: 3px;
+  }
+  .msg-jefe {
+    align-self: flex-end;
+    background: rgba(var(--jc), 0.13);
+    border-color: rgba(var(--jc), 0.32);
+    border-bottom-right-radius: 3px;
+  }
+  .msg-jarvis {
+    align-self: flex-start;
+    background: rgba(13, 38, 60, 0.92);
+    border-color: rgba(var(--jc), 0.22);
+    border-bottom-left-radius: 3px;
+  }
+  .msg .cursor {
+    display: inline-block;
+    width: 5px;
+    height: 10px;
+    background: rgb(var(--jc));
+    vertical-align: -1px;
+    margin-left: 2px;
+    animation: parpadeo 0.9s steps(2) infinite;
+  }
+  body:not(.st-speaking) .msg .cursor { display: none; }
+  .chat-barra {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  /* Boton "ir al final": flota encima del boton de enviar. (04/10/2026) */
+  .ir-final {
+    position: absolute !important;
+    right: 12px !important;
+    bottom: 52px !important;
+    width: 34px !important;
+    height: 34px !important;
+    border-radius: 50% !important;
+    display: none;
+    align-items: center !important;
+    justify-content: center !important;
+    background: rgba(var(--jc), 0.18) !important;
+    border: 1px solid rgba(var(--jc), 0.5) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.45);
+    z-index: 5;
+  }
+  .ir-final svg { width: 18px !important; height: 18px !important; }
+  body.chat-scroll-arriba .ir-final { display: flex !important; }
+  .chat-input {
+    flex: 1;
+    min-width: 0;
+    background: rgba(2, 12, 22, 0.75);
+    border: 1px solid rgba(var(--jc), 0.28);
+    border-radius: 8px;
+    color: rgba(235, 245, 255, 0.95);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 11px;
+    padding: 6px 9px;
+    outline: none;
+    transition: border-color 0.16s ease;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+  .chat-input::placeholder { color: rgba(222, 240, 252, 0.4); }
+  .chat-input:focus { border-color: rgba(var(--jc), 0.6); }
+</style>
+</head>
+<body class="st-muted">
+<!-- Pantalla de carga ELIMINADA (orden del jefe 04/10/2026): arranque directo. -->
+<div id="app">
+
+  <!-- La barra está abajo; la burbuja (respuestas con el chat minimizado)
+       crece hacia ARRIBA, encima del icono flotante, igual que el JARVIS-HRZ. -->
+  <div class="burbuja" id="wBurbuja">
+    <span class="burbuja-autor" id="wBurbujaAutor"></span>
+    <div class="burbuja-texto" id="wBurbujaTexto"></div>
+  </div>
+
+  <div class="barra">
+    <div class="esfera-zona" id="zonaArrastre" title="Arrastra para mover · Clic para el micrófono">
+      <div class="halo"></div>
+      <canvas id="esfera" width="80" height="80"></canvas>
+      <div class="orbita"></div>
+    </div>
+
+    <div class="info">
+      <div class="fila">
+        <span class="punto"></span>
+        <span class="estado" id="wEstado">Inactivo</span>
+      </div>
+      <div class="frase" id="wFrase"></div>
+    </div>
+
+    <div class="onda-zona"><canvas id="onda" width="320" height="44"></canvas></div>
+
+    <button class="btn" id="btnAjustes" title="Ajustes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mini-chat: se despliega hacia abajo -->
+  <div class="chat" id="wChat">
+    <div class="chat-cab">
+      <span class="chat-titulo">JARVIS · Chat</span>
+    </div>
+    <div class="chat-msgs" id="wMensajes"></div>
+    <!-- Boton "ir al final": flota ENCIMA del boton de enviar (orden del jefe
+         04/10/2026). Solo aparece cuando el jefe no esta al fondo del chat. -->
+    <button class="btn ir-final" id="btnIrFinal" title="Ir al final">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 5v14"/><path d="M19 12l-7 7-7-7"/>
+      </svg>
+    </button>
+    <div class="chat-barra">
+      <input class="chat-input" id="wInput" placeholder="Escribe a JARVIS…" autocomplete="off" spellcheck="false" />
+      <!-- Boton ADJUNTAR (clip). Justo a la derecha de la caja y a la izquierda
+           del boton enviar (orden del jefe 04/10/2026). -->
+      <button class="btn" id="btnAdjuntar" title="Adjuntar imagen o documento">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+        </svg>
+      </button>
+      <button class="btn" id="btnEnviar" title="Enviar">
+        <svg class="ic-enviar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/>
+        </svg>
+        <svg class="ic-stop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PANEL DE AJUSTES (se abre con la ruedita) ===== -->
+<div id="panelAjustes">
+  <div class="aj-cab">
+    <span class="aj-titulo">Ajustes</span>
+    <button class="aj-cerrar" id="ajCerrar" title="Cerrar">✕</button>
+  </div>
+  <div class="aj-cuerpo">
+    <div class="aj-seccion">Efecto de aparición de mensajes</div>
+    <div class="aj-opciones" id="ajEfectos">
+      <button class="aj-op" data-efecto="escribir">⌨️ Máquina de escribir</button>
+      <button class="aj-op" data-efecto="deslizar">⬆️ Deslizar</button>
+      <button class="aj-op" data-efecto="fundido">✨ Fundido</button>
+      <button class="aj-op" data-efecto="zoom">🔍 Zoom</button>
+      <button class="aj-op" data-efecto="rebote">🫧 Rebote</button>
+      <button class="aj-op" data-efecto="glitch">📺 Glitch</button>
+      <button class="aj-op" data-efecto="maquina">🤖 Máquina</button>
+      <button class="aj-op" data-efecto="neon">💠 Neón</button>
+    </div>
+    <div class="aj-seccion">Notificaciones (por defecto silenciadas)</div>
+    <button class="aj-op" id="ajNotif">🔕 Avisos silenciados</button>
+    <div class="aj-seccion">Sistema</div>
+    <button class="aj-op aj-acceso" id="ajReiniciar">🔄 Reiniciar JARVIS</button>
+    <button class="aj-op aj-acceso" id="ajAcceso">🔑 Acceso Telegram</button>
+    <div class="aj-firma">App creada por Wáscar y JARVIS</div>
+  </div>
+</div>
+
+<!-- ===== PANEL DE ACCESO A TELEGRAM (orden del jefe 04/10/2026) =====
+     El jefe introduce TODOS los datos (telefono, api_id, api_hash, bot)
+     DE UNA SOLA VEZ y la app arranca el acceso automaticamente. Se abre solo
+     cuando falta sesion; tambien con el boton "Acceso Telegram" de Ajustes. -->
+<div id="panelAcceso">
+  <div class="ac-cab">
+    <span class="ac-titulo" id="acTitulo">Acceso a Telegram</span>
+    <button class="ac-cerrar" id="acCerrar" title="Cerrar">✕</button>
+  </div>
+  <div class="ac-cuerpo">
+
+    <!-- BLOQUE 1: DATOS (solo se muestran cuando aun no hay sesion que use). -->
+    <div id="acDatos">
+      <div class="ac-nota">Introduce tus datos de una vez y la app entra sola.</div>
+      <label class="ac-lbl" for="acTelefono">Teléfono (con país)</label>
+      <input class="ac-inp" id="acTelefono" type="tel" inputmode="tel"
+             placeholder="+58412xxxxxxx" autocomplete="off" />
+      <label class="ac-lbl" for="acApiId">api_id</label>
+      <input class="ac-inp" id="acApiId" type="number" inputmode="numeric"
+             placeholder="36846359" autocomplete="off" />
+      <label class="ac-lbl" for="acApiHash">api_hash</label>
+      <input class="ac-inp" id="acApiHash" type="text" inputmode="text"
+             placeholder="8af3fc4adb26e5e3afe067bd331fa0cc" autocomplete="off" />
+      <label class="ac-lbl" for="acBot">Bot de JARVIS</label>
+      <input class="ac-inp" id="acBot" type="text" inputmode="text"
+             placeholder="jarvis_asistent_kilo_bot" autocomplete="off" />
+      <button class="ac-btn" id="acEntrar">ENTRAR</button>
+    </div>
+
+    <!-- BLOQUE 2: PASO (codigo o clave) — aparece solo si Telegram lo pide. -->
+    <div id="acPasoBloque" style="display:none">
+      <div class="ac-nota" id="acPasoNota"></div>
+      <input class="ac-inp" id="acPasoInp" type="text" inputmode="text"
+             autocomplete="off" />
+      <button class="ac-btn" id="acEnviarPaso">ENVIAR</button>
+    </div>
+
+    <div class="ac-msg" id="acMsg"></div>
+    <div class="ac-ok" id="acOk" style="display:none">
+      <div class="ac-ok-txt">✔ Acceso concedido. JARVIS en línea.</div>
+      <button class="ac-btn" id="acOkBtn">ABRIR EL CHAT</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== OVERLAY DE LLAMADA (se activa al tocar la esfera) ===== -->
+<div id="call">
+  <div class="call-esfera">
+    <div class="halo"></div>
+    <canvas id="esferaG" width="480" height="480"></canvas>
+    <div class="orbita"></div>
+  </div>
+  <div class="call-nombre" id="callNombre">JARVIS</div>
+  <div class="call-estado" id="callEstado">Conectando…</div>
+  <div class="call-botones">
+    <button class="call-btn mute" id="btnMute" title="Silenciar micrófono">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><path d="M12 17v4"/>
+      </svg>
+    </button>
+    <button class="call-btn colgar" id="btnColgar" title="Colgar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script src="temas_esfera.js"></script>
+<script>
+  // Version del APK que trae este widget (para saber que build corre de verdad).
+  const _APP_VERSION = '26.0';
+  try { window.JARVIS_APP_VERSION = _APP_VERSION; } catch (e) {}
+  const _ETIQUETAS = {
+    MUTED: 'Inactivo', LISTENING: 'JARVIS, EN LÍNEA',
+    ARMED: 'Di "JARVIS"', ASLEEP: 'En reposo',
+    THINKING: 'Procesando...', SPEAKING: 'Respondiendo',
+    WRITING: 'Escribiendo',
+  };
+  // Estado de pensar: SIEMPRE "Procesando...", nunca "Trabajando..."
+  // (orden del jefe 05/10/2026). Se deja como lista por si algun dia se quiere
+  // volver a alternar.
+  const _TEXTOS_PENSANDO = ['Procesando...'];
+  let _idxPensando = 0;
+
+  // Los colores vienen del tema elegido en Configuración (temas_esfera.js),
+  // así la esfera del widget y la de la interfaz de voz siempre coinciden.
+  let _tema = (window.TemasEsfera && window.TemasEsfera.DEFECTO) || 'cyan';
+  let _COLORES = window.TemasEsfera
+    ? window.TemasEsfera.coloresWidget(_tema)
+    : {
+        MUTED: [30, 70, 75], LISTENING: [0, 255, 255],
+        ARMED: [0, 132, 168], ASLEEP: [46, 92, 116],
+        THINKING: [255, 196, 0], SPEAKING: [34, 230, 255],
+        WRITING: [255, 45, 45],
+      };
+
+  let _estado = 'MUTED';
+  let _color = _COLORES.MUTED.slice();
+  let _objetivo = _COLORES.MUTED.slice();
+  // FLUIDEZ (05/10/2026): color actual en texto ('r,g,b'), compartido con el
+  // bucle de la barra. Antes ese bucle llamaba a getComputedStyle en CADA cuadro
+  // (recalculo de estilos) y el color se reescribia en el DOM en cada cuadro.
+  let _rgbCSS = '0,255,255';
+  // Timer del cierre automático de la burbuja superior (respuestas con el
+  // chat minimizado): se programa al volver al reposo y se cancela con
+  // cualquier actividad nueva.
+  let _timerCierre = null;
+
+  /** Cambia el tema de color en caliente. Lo llama Python al guardar. */
+  window.wSetTema = function (clave) {
+    if (!window.TemasEsfera) return;
+    _tema = clave || window.TemasEsfera.DEFECTO;
+    _COLORES = window.TemasEsfera.coloresWidget(_tema);
+    window.TemasEsfera.aplicarVariables(_tema);
+    // Reapuntar el color objetivo al del estado actual: la transición del
+    // bucle de dibujo hace el resto y el cambio se ve suave.
+    _objetivo = (_COLORES[_estado] || _COLORES.MUTED).slice();
+  };
+
+  function _api() {
+    return (window.pywebview && window.pywebview.api) ? window.pywebview.api : null;
+  }
+  function _el(id) { return document.getElementById(id); }
+
+  /* ---- Esfera de partículas ----
+     Se dibuja al DOBLE de resolución (el canvas mide 80px de lado y el CSS lo
+     encoge a 40): a este tamaño tan pequeño, sin ese sobremuestreo las
+     partículas salían con bordes dentados y el conjunto parecía suciedad en
+     pantalla. Además, las partículas se reparten con la espiral de Fibonacci en
+     vez de al azar, para que la esfera se lea como una esfera y no como un
+     puñado de puntos con zonas vacías. */
+  const _pulso = { valor: 0 };      // 0..1, lo agita el estado (habla / escribe)
+
+  (function () {
+    const cv = _el('esfera'), ctx = cv.getContext('2d');
+    const LADO = 40, ESC = 2;       // tamaño CSS y factor de sobremuestreo
+    const C = LADO / 2, RAD = 14.2, F = 115;
+    const N = 78;
+    const ps = [];
+    const AUREO = Math.PI * (3 - Math.sqrt(5));
+    for (let i = 0; i < N; i++) {
+      const y = 1 - (i / (N - 1)) * 2;          // de +1 a -1
+      const rr = Math.sqrt(Math.max(0, 1 - y * y));
+      const th = AUREO * i;
+      ps.push({
+        x: RAD * Math.cos(th) * rr,
+        y: RAD * y,
+        z: RAD * Math.sin(th) * rr,
+        r: 0.5 + Math.random() * 0.55,
+        f: Math.random() * Math.PI * 2,          // fase propia del centelleo
+      });
+    }
+    ctx.scale(ESC, ESC);
+
+    // Esfera GRANDE de la llamada: mismo dibujo, mas resolucion. Se pinta en
+    // cada frame junto con la pequena, reutilizando color y pulso.
+    const cvG = _el('esferaG');
+    const ctxG = cvG ? cvG.getContext('2d') : null;
+    const ESCG = 6;                 // el canvas mide 480 y el CSS lo escala
+    if (ctxG) ctxG.scale(ESCG, ESCG);
+    const LG = 80, CG = LG / 2, RADG = 28.4;
+
+    let ang = 0, t = 0;
+
+    function pintar(cc, lado, centro, radio, foco, escala) {
+      const ln = cc.lineWidth;
+      for (const p of ps) {
+        // Giro en Y y luego inclinación en X: se ven los polos, no un anillo.
+        const x1 = Math.cos(ang) * p.x + Math.sin(ang) * p.z;
+        const z1 = -Math.sin(ang) * p.x + Math.cos(ang) * p.z;
+        const y2 = Math.cos(inc) * p.y - Math.sin(inc) * z1;
+        const z2 = Math.sin(inc) * p.y + Math.cos(inc) * z1;
+
+        const m = (foco / (foco - z2)) * escala;
+        const px = centro + x1 * m, py = centro + y2 * m;
+        const prof = (z2 + radio) / (radio * 2);
+        const centelleo = 0.85 + 0.15 * Math.sin(t * 1.5 + p.f);
+        const a = Math.max(0.08, Math.min(1, prof * prof * 0.95 + 0.1)) * centelleo;
+
+        cc.fillStyle = 'rgba(' + _rgb + ',' + a.toFixed(3) + ')';
+        cc.beginPath();
+        cc.arc(px, py, p.r * m, 0, Math.PI * 2);
+        cc.fill();
+
+        // Solo las partículas del frente reciben halo: cuesta poco y da relieve.
+        if (prof > 0.72) {
+          cc.fillStyle = 'rgba(' + _rgb + ',' + (a * 0.16).toFixed(3) + ')';
+          cc.beginPath();
+          cc.arc(px, py, p.r * m * 2.6, 0, Math.PI * 2);
+          cc.fill();
+        }
+      }
+      // Borde de contención de la silueta.
+      cc.strokeStyle = 'rgba(' + _rgb + ',' + (0.16 + _pulso.valor * 0.14).toFixed(3) + ')';
+      cc.lineWidth = ln;
+      cc.beginPath(); cc.arc(centro, centro, radio * 1.06 * escala, 0, Math.PI * 2); cc.stroke();
+      cc.lineWidth = ln;
+    }
+
+    let _rgb = '0,255,255', inc = 0.42;
+
+    function frame() {
+      // FLUIDEZ (05/10/2026): con la app en segundo plano NO se redibuja la
+      // esfera (ahorra GPU y bateria); al volver se retoma sola.
+      if (document.hidden) { requestAnimationFrame(frame); return; }
+      // Transición suave de color entre estados.
+      for (let i = 0; i < 3; i++) _color[i] += (_objetivo[i] - _color[i]) * 0.08;
+      const r = Math.round(_color[0]), g = Math.round(_color[1]), b = Math.round(_color[2]);
+      const rgb = r + ',' + g + ',' + b;
+      _rgb = rgb;
+      // SOLO se toca la variable CSS cuando el color CAMBIA de verdad: antes se
+      // reescribia en cada cuadro y forzaba recalcular estilos de toda la app.
+      if (rgb !== _rgbCSS) {
+        _rgbCSS = rgb;
+        document.documentElement.style.setProperty('--jc', rgb);
+      }
+
+      const vel = _estado === 'WRITING' ? 0.034
+                : _estado === 'THINKING' ? 0.030
+                : _estado === 'SPEAKING' ? 0.026
+                : _estado === 'LISTENING' ? 0.012
+                : _estado === 'ARMED' ? 0.008
+                : _estado === 'ASLEEP' ? 0.004 : 0.0055;
+      ang = (ang + vel) % (Math.PI * 2);
+      t += 0.05;
+
+      // Respiración: en reposo apenas se nota; hablando o trabajando, late.
+      const intenso = _estado === 'SPEAKING' || _estado === 'WRITING' || _estado === 'THINKING';
+      const objetivo = intenso ? (0.5 + 0.5 * Math.sin(t * 1.9)) : 0;
+      _pulso.valor += (objetivo - _pulso.valor) * 0.12;
+      const escala = 1 + _pulso.valor * 0.07;
+
+      ctx.clearRect(0, 0, LADO, LADO);
+      inc = 0.42;
+
+      // Núcleo: da cuerpo al centro para que no se vea hueco.
+      const nuc = ctx.createRadialGradient(C, C, 0, C, C, RAD * 0.95 * escala);
+      nuc.addColorStop(0, 'rgba(' + rgb + ',' + (0.34 + _pulso.valor * 0.2) + ')');
+      nuc.addColorStop(0.55, 'rgba(' + rgb + ',0.11)');
+      nuc.addColorStop(1, 'rgba(' + rgb + ',0)');
+      ctx.fillStyle = nuc;
+      ctx.beginPath(); ctx.arc(C, C, RAD * 1.05 * escala, 0, Math.PI * 2); ctx.fill();
+
+      pintar(ctx, LADO, C, RAD, F, escala);
+
+      // --- Esfera grande de la llamada (si la pantalla de llamada existe) ---
+      if (ctxG) {
+        ctxG.clearRect(0, 0, LG, LG);
+        const nucG = ctxG.createRadialGradient(CG, CG, 0, CG, CG, RADG * 0.95 * escala);
+        nucG.addColorStop(0, 'rgba(' + rgb + ',' + (0.30 + _pulso.valor * 0.2) + ')');
+        nucG.addColorStop(0.55, 'rgba(' + rgb + ',0.10)');
+        nucG.addColorStop(1, 'rgba(' + rgb + ',0)');
+        ctxG.fillStyle = nucG;
+        ctxG.beginPath(); ctxG.arc(CG, CG, RADG * 1.05 * escala, 0, Math.PI * 2); ctxG.fill();
+        pintar(ctxG, LG, CG, RADG, F, escala);
+      }
+
+      requestAnimationFrame(frame);
+    }
+    frame();
+  })();
+
+  /* ---- Medidor de barras (estilo nota de voz de WhatsApp) ----
+     Barritas verticales centradas y redondeadas que suben y bajan. Cada barra
+     lleva su propia altura suavizada hacia un objetivo aleatorio: eso es lo que
+     hace que se vea como voz real y no como una onda matemática. Sin la
+     suavización las barras saltarían a lo loco (parece ruido); sin el objetivo
+     aleatorio se vería un patrón repetido y artificial. */
+  (function () {
+    const cv = _el('onda');
+    if (!cv) return;
+    const ctx = cv.getContext('2d');
+    const W = 320, H = 44;           // resolución interna (el CSS la encoge)
+    const N = 26;                    // nº de barras
+    const ANCHO = 3.4;               // grosor de cada barra
+    const HUECO = (W - N * ANCHO) / (N - 1);
+    const MIN = 3;                   // altura mínima: la barra nunca desaparece
+    const MAX = H - 6;
+
+    // h = altura actual, obj = a dónde va. Al arrancar, todas en reposo.
+    const b = [];
+    for (let i = 0; i < N; i++) b.push({ h: MIN, obj: MIN });
+
+    let t = 0, tic = 0;
+    function frame() {
+      // FLUIDEZ (05/10/2026): no se redibuja en segundo plano y el color se lee
+      // ya calculado (antes: getComputedStyle en CADA cuadro = recalculo).
+      if (document.hidden) { requestAnimationFrame(frame); return; }
+      const rgb = _rgbCSS || '0,255,255';
+      const hablando = _estado === 'SPEAKING' || _estado === 'WRITING';
+      const escuchando = _estado === 'LISTENING';
+      const pensando = _estado === 'THINKING';
+
+      // Cada pocos frames se sortean nuevas alturas objetivo. Refrescar en cada
+      // frame haría un temblor nervioso; así el ritmo se parece al del habla.
+      tic++;
+      const cada = hablando ? 4 : pensando ? 3 : 10;
+      if (tic % cada === 0) {
+        t += 1;
+        for (let i = 0; i < N; i++) {
+          if (hablando) {
+            // Envolvente lenta común: sílabas (sube y baja todo el bloque) +
+            // variación por barra, que es lo que da la textura de voz.
+            const silaba = 0.45 + 0.55 * Math.abs(Math.sin(t * 0.22 + i * 0.04));
+            b[i].obj = MIN + (MAX - MIN) * silaba * (0.25 + Math.random() * 0.75);
+          } else if (escuchando) {
+            b[i].obj = MIN + (MAX - MIN) * 0.3 * Math.random();
+          } else if (pensando) {
+            // TRABAJANDO: oleada continua y vibrante, como una barra de progreso
+            // viva (orden del jefe 04/10/2026).
+            const oleada = 0.4 + 0.6 * Math.abs(Math.sin(t * 0.5 - i * 0.35));
+            b[i].obj = MIN + (MAX - MIN) * 0.62 * oleada;
+          } else {
+            b[i].obj = MIN;           // inactivo: línea de puntitos en reposo
+          }
+        }
+      }
+
+      // Subida rápida y bajada más lenta, igual que un VU real.
+      for (let i = 0; i < N; i++) {
+        const k = b[i].obj > b[i].h ? 0.45 : 0.14;
+        b[i].h += (b[i].obj - b[i].h) * k;
+      }
+
+      ctx.clearRect(0, 0, W, H);
+      const cy = H / 2;
+      for (let i = 0; i < N; i++) {
+        const x = i * (ANCHO + HUECO);
+        // Se desvanece en los extremos para no chocar con el texto ni el botón.
+        const borde = Math.min(1, Math.min(i, N - 1 - i) / 3.5);
+        const alto = Math.max(MIN, b[i].h);
+        const a = (0.3 + 0.6 * (alto / MAX)) * (0.35 + 0.65 * borde);
+        ctx.fillStyle = 'rgba(' + rgb + ',' + a.toFixed(3) + ')';
+        ctx.beginPath();
+        // roundRect no está en WebView2 antiguos: se emula con un rectángulo y
+        // dos semicírculos en las puntas.
+        const r = ANCHO / 2;
+        ctx.fillRect(x, cy - alto / 2 + r, ANCHO, Math.max(0, alto - ANCHO));
+        ctx.arc(x + r, cy - alto / 2 + r, r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(x + r, cy + alto / 2 - r, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      requestAnimationFrame(frame);
+    }
+    frame();
+  })();
+
+  /* ---- API que llama Python ---- */
+  window.wSetEstado = function (st) {
+    // Al ENTRAR en "pensar" se alterna Trabajando... / Procesando...
+    if (st === 'THINKING' && _estado !== 'THINKING') {
+      _ETIQUETAS.THINKING = _TEXTOS_PENSANDO[_idxPensando];
+      _idxPensando = (_idxPensando + 1) % _TEXTOS_PENSANDO.length;
+    }
+    _estado = st || 'MUTED';
+    // Copia: si se apuntara al array del tema, la transición del bucle de
+    // dibujo lo mutaría y el color del tema quedaría corrompido.
+    _objetivo = (_COLORES[_estado] || _COLORES.MUTED).slice();
+    const expandido = document.body.classList.contains('expandido');
+    const chatAbierto = document.body.classList.contains('chat-abierto');
+    // El reposo no cuenta como 'activo' visualmente (está en pausa), pero
+    // tampoco es inactivo: mantiene su propia clase st-asleep con latido lento.
+    const enPausa = _estado === 'MUTED' || _estado === 'ASLEEP';
+    // NO se reescribe className entero (borraria scroll-oculto, chat-abierto...):
+    // se quitan SOLO las clases de estado st-* y se pone la nueva, conservando
+    // el resto (fix 04/10/2026: la barra auto-oculta parpadeaba al cambiar estado).
+    const cl = document.body.classList;
+    cl.remove('st-muted','st-listening','st-armed','st-asleep','st-speaking','st-thinking','st-writing');
+    cl.add('st-' + _estado.toLowerCase());
+    cl.toggle('activo', !enPausa);
+    cl.toggle('expandido', expandido);
+    cl.toggle('chat-abierto', chatAbierto);
+    const e = _el('wEstado');
+    if (e) e.textContent = _ETIQUETAS[_estado] || _estado;
+    if (enPausa) {
+      // Al volver al reposo no se corta la burbuja en seco: cierra con el
+      // mismo temporizador de 5 s (para que el jefe alcance a leerla).
+      window.wProgramarCierrePanel();
+    }
+  };
+
+  // Frase corta en la barra (sin abrir el panel).
+  window.wSetTexto = function (t) {
+    const el = _el('wFrase');
+    if (el) el.textContent = t || '';
+  };
+
+  /* ---- Burbuja superior ----
+     Muestra la frase del jefe y la respuesta de JARVIS ENCIMA del icono
+     flotante cuando el mini-chat está contraído: la ventana crece hacia
+     arriba (mecanismo expandir), la barra se queda abajo y la burbuja ocupa
+     el espacio extra. Al volver al reposo se cierra sola en 3,5 s. */
+  window.wBurbuja = function (rol, texto) {
+    const au = _el('wBurbujaAutor'), bu = _el('wBurbujaTexto');
+    if (!bu) return;
+    if (au) au.textContent = rol === 'jefe' ? 'USTED' : 'JARVIS';
+    const seguro = String(texto || '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g, '$1');
+    bu.innerHTML = seguro + (rol !== 'jefe' ? '<span class="cursor"></span>' : '');
+    bu.classList.toggle('jefe', rol === 'jefe');
+    bu.scrollTop = bu.scrollHeight;
+    if (!document.body.classList.contains('expandido')) {
+      document.body.classList.add('expandido');
+      const api = _api();
+      if (api && api.expandir) api.expandir(true);
+    }
+    // Temporizador inteligente (orden del jefe):
+    // - El mensaje del jefe ("USTED") NO se desvanece: se mantiene arriba
+    //   hasta que llegue la respuesta de JARVIS.
+    // - La respuesta de JARVIS se limpia sola tras 11 segundos, dejando la
+    //   parte superior sin letras (solo el icono flotante).
+    if (_timerCierre) clearTimeout(_timerCierre);
+    _timerCierre = null;
+    if (rol !== 'jefe') {
+      _timerCierre = setTimeout(function () {
+        if (document.body.classList.contains('expandido')) window.wCerrarPanel();
+      }, 11000);
+    }
+  };
+
+  // Progreso EN VIVO del Combo: la burbuja muestra el paso actual mientras
+  // el trabajo sigue (sin entrar al historial del chat y sin programar el
+  // cierre: se queda arriba hasta que llegue la respuesta final).
+  window.wProgreso = function (texto, autor) {
+    const au = _el('wBurbujaAutor'), bu = _el('wBurbujaTexto');
+    if (!bu) return;
+    if (au) au.textContent = autor || 'JARVIS · procesando';
+    const seguro = String(texto || '')
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/`([^`]+)`/g, '<code>$1</code>')
+      .replace(/\*\*([^*]+)\*\*/g, '$1');
+    bu.innerHTML = seguro + '<span class="cursor"></span>';
+    bu.classList.remove('jefe');
+    bu.scrollTop = bu.scrollHeight;
+    if (_timerCierre) { clearTimeout(_timerCierre); _timerCierre = null; }
+    if (!document.body.classList.contains('expandido')) {
+      document.body.classList.add('expandido');
+      const api = _api();
+      if (api && api.expandir) api.expandir(true);
+    }
+  };
+
+  // Cierre programado: se usa al volver al reposo (MUTED/ASLEEP). La
+  // respuesta permanece sus 11 s y luego la ventana vuelve a la barra (o se
+  // queda solo con el chat si estaba abierto).
+  window.wProgramarCierrePanel = function () {
+    if (_timerCierre) clearTimeout(_timerCierre);
+    _timerCierre = setTimeout(function () {
+      if (document.body.classList.contains('expandido')) window.wCerrarPanel();
+    }, 11000);
+  };
+
+  // Respuesta: abre el panel hacia arriba, con imagen a la izquierda si la hay.
+  window.wSetRespuesta = function (texto, imagen, titulo) {
+    const txt = _el('wTexto'), foto = _el('wFoto'), tit = _el('wTitulo');
+    if (!txt) return;
+
+    // texto=null significa "no toques el texto, solo la imagen": lo usa Python
+    // cuando la imagen llega después de que JARVIS ya empezó a hablar.
+    if (texto) {
+      const seguro = String(texto)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\*\*([^*]+)\*\*/g, '$1');
+      txt.innerHTML = seguro + '<span class="cursor"></span>';
+      // El panel es bajo a propósito: se mantiene pegado al final para que
+      // siempre se vea lo último que JARVIS está diciendo.
+      txt.scrollTop = txt.scrollHeight;
+    }
+
+    if (tit) {
+      tit.textContent = titulo || '';
+      tit.classList.toggle('visible', !!titulo);
+    }
+
+    if (imagen) {
+      // Solo se recarga si cambió la imagen: evita parpadeos en cada chunk.
+      if (foto.dataset.src !== imagen) {
+        foto.dataset.src = imagen;
+        foto.classList.remove('lista');
+        foto.innerHTML = '';
+        const im = document.createElement('img');
+        im.alt = '';
+        im.addEventListener('load', () => {
+          foto.classList.add('lista');
+          im.classList.add('cargada');
+        });
+        im.addEventListener('error', () => {
+          foto.classList.remove('visible');
+          foto.dataset.src = '';
+        });
+        im.src = imagen;
+        foto.appendChild(im);
+      }
+      foto.classList.add('visible');
+    }
+
+    if (!document.body.classList.contains('expandido')) {
+      document.body.classList.add('expandido');
+      const api = _api();
+      if (api && api.expandir) api.expandir(true);
+    }
+    window.wSetTexto('');
+  };
+
+  window.wCerrarPanel = function () {
+    if (!document.body.classList.contains('expandido')) return;
+    document.body.classList.remove('expandido');
+    const bu = _el('wBurbujaTexto'), au = _el('wBurbujaAutor');
+    if (bu) bu.innerHTML = '';
+    if (au) au.textContent = '';
+    const api = _api();
+    if (api && api.expandir) api.expandir(false);
+  };
+
+  /* ---- Arrastre manual sobre la esfera ----
+     El arrastre lo maneja WINDOWS (nativo): en el primer movimiento real se
+     pide el drag de sistema (WM_NCLBUTTONDOWN/HTCAPTION). Asi la ventana
+     sigue al cursor aunque este salga de los 300x56 px del widget (antes los
+     eventos del DOM se perdian y la posicion quedaba desincronizada). */
+  (function () {
+    const zona = _el('zonaArrastre');
+    if (!zona) return;
+    let act = false, x0 = 0, y0 = 0, movido = false, nativo = false;
+    let listoParaClick = false;
+    zona.addEventListener('pointerdown', (ev) => {
+      listoParaClick = true;
+    }, { passive: true });
+    zona.addEventListener('mousedown', (ev) => {
+      if (ev.button !== 0) return;
+      act = true; movido = false; nativo = false; x0 = ev.screenX; y0 = ev.screenY;
+      const api = _api();
+      if (api && api.drag_start) api.drag_start();
+      ev.preventDefault();
+    });
+    window.addEventListener('mousemove', (ev) => {
+      if (!act || nativo) return;
+      const dx = ev.screenX - x0, dy = ev.screenY - y0;
+      if (Math.abs(dx) + Math.abs(dy) < 4) return;
+      movido = true;
+      nativo = true;
+      const api = _api();
+      if (api && api.drag_nativo) api.drag_nativo();
+    });
+    window.addEventListener('mouseup', () => {
+      if (!act) return;
+      act = false;
+      const api = _api();
+      if (movido) {
+        if (api && api.drag_end) api.drag_end();
+      } else {
+        // Toque en la esfera = ABRIR LA LLAMADA con JARVIS (orden 04/10/2026).
+        window.wAbrirLlamada();
+      }
+    });
+    // Respaldo para toque directo (input tap / touch): si el mousedown/mouseup no
+    // llegan, el 'click' limpio igual abre la llamada.
+    zona.addEventListener('click', (ev) => {
+      if (ev && ev.preventDefault) ev.preventDefault();
+      window.wAbrirLlamada();
+    });
+  })();
+
+  /* ===== LLAMADA CON JARVIS (orden del jefe 04/10/2026) =====
+     Al tocar la esfera se abre un overlay a pantalla completa con la esfera
+     grande y sus animaciones, tipo llamada: mute y colgar. La voz va al canal
+     Gemini Live (lo maneja el backend Android). */
+  let _mudo = false;
+  window.wAbrirLlamada = function () {
+    try { const a = _api(); if (a && a.log) a.log('wAbrirLlamada invocado'); } catch (e) {}
+    // Cierra el teclado si estaba abierto (que no tape la llamada).
+    try { const i = _el('wInput'); if (i) i.blur(); } catch (e) {}
+    document.body.classList.add('en-llamada');
+    _mudo = false;
+    const b = _el('btnMute'); if (b) b.classList.remove('mudo');
+    const est = _el('callEstado'); if (est) est.textContent = 'Conectando…';
+    const api = _api();
+    if (api && api.llamada_iniciar) api.llamada_iniciar();
+  };
+  window.wCerrarLlamada = function () {
+    document.body.classList.remove('en-llamada');
+    const api = _api();
+    if (api && api.llamada_cerrar) api.llamada_cerrar();
+  };
+  // El backend informa el estado del canal de voz.
+  window.wSetLlamada = function (texto) {
+    const est = _el('callEstado'); if (est) est.textContent = texto || '';
+  };
+  _el('btnColgar').addEventListener('click', () => window.wCerrarLlamada());
+  _el('btnMute').addEventListener('click', () => {
+    _mudo = !_mudo;
+    const b = _el('btnMute'); if (b) b.classList.toggle('mudo', _mudo);
+    const api = _api();
+    if (api && api.llamada_mute) api.llamada_mute(_mudo);
+  });
+
+  /* ---- Clic derecho en la esfera: menu nativo "Ocultar widget" ----
+     (03/10/2026, orden del jefe). Se engancha a 'contextmenu' Y a
+     'mousedown' con boton 2, porque el backend WebView2 a veces no entrega
+     el primero. El menu lo dibuja Windows (api.menu_contextual) para que
+     salga fuera del recuadro del widget. */
+  let _ctxUlt = 0;
+  function _menuCtx(ev) {
+    if (ev) ev.preventDefault();
+    const ahora = Date.now();
+    if (ahora - _ctxUlt < 400) return;   // evita doble disparo (mousedown + contextmenu)
+    _ctxUlt = ahora;
+    const api = _api();
+    if (api && api.menu_contextual) api.menu_contextual();
+  }
+  window.addEventListener('contextmenu', _menuCtx);
+  window.addEventListener('mousedown', (ev) => { if (ev.button === 2) _menuCtx(ev); });
+
+  _el('btnAjustes').addEventListener('click', () => {
+    // Ruedita de ajustes (orden del jefe 04/10/2026): abre el PANEL de opciones.
+    window.wAbrirAjustes(true);
+  });
+  _el('zonaArrastre').addEventListener('dblclick', () => {
+    const api = _api();
+    if (api && api.abrir_ventana) api.abrir_ventana();
+  });
+
+  /* ---- Panel de ajustes (ruedita) ---- */
+  window.wAbrirAjustes = function (abrir) {
+    document.body.classList.toggle('ajustes-abierto', !!abrir);
+    if (abrir) { window.wSetEfecto(_efectoActual); _refrescarNotif(); }
+  };
+  // NOTIFICACIONES (orden del jefe 05/10/2026): silenciadas por defecto.
+  let _notifOn = false;
+  function _pintarNotif() {
+    const b = _el('ajNotif');
+    if (!b) return;
+    b.textContent = _notifOn ? '🔔 Avisos activados' : '🔕 Avisos silenciados';
+    b.classList.toggle('activo', _notifOn);
+  }
+  function _refrescarNotif() {
+    const api = _api();
+    if (api && api.notif_estado) {
+      Promise.resolve(api.notif_estado()).then(function (v) {
+        _notifOn = (String(v) === '1');
+        _pintarNotif();
+      }).catch(function () {});
+    }
+  }
+  (function () {
+    const cerrar = _el('ajCerrar');
+    if (cerrar) cerrar.addEventListener('click', () => window.wAbrirAjustes(false));
+    const ops = document.querySelectorAll('#ajEfectos .aj-op');
+    for (let i = 0; i < ops.length; i++) {
+      ops[i].addEventListener('click', () => {
+        window.wSetEfecto(ops[i].getAttribute('data-efecto'));
+      });
+    }
+    // NOTIFICACIONES: alterna silenciadas <-> activadas.
+    const bNotif = _el('ajNotif');
+    if (bNotif) {
+      bNotif.addEventListener('click', () => {
+        const api = _api();
+        const activar = !_notifOn;
+        if (api && api.set_notif) api.set_notif(activar ? '1' : '0');
+        _notifOn = activar;
+        _pintarNotif();
+      });
+    }
+    // REINICIAR JARVIS (igual que "interrumpir").
+    const bRein = _el('ajReiniciar');
+    if (bRein) {
+      bRein.addEventListener('click', () => {
+        const api = _api();
+        if (api && api.reiniciar_jarvis) api.reiniciar_jarvis();
+        window.wAbrirAjustes(false);
+      });
+    }
+    _refrescarNotif();
+  })();
+
+  /* ---- Boton de AJUSTES (ruedita, esquina superior derecha) ----
+     Antes era el chevron de abrir/contraer chat; ahora es la ruedita de
+     configuracion (orden del jefe 04/10/2026). El chat se abre/cierra con el
+     doble toque en la esfera. */
+  function _actualizarBotonChat() {
+    // (Ya no cambia de icono: es fijo, la ruedita de ajustes.)
+  }
+  _actualizarBotonChat();
+
+  /* ---- Boton altavoz (voz on/off) ----
+     Vive en la barra compacta (al lado del boton contraer/expandir), asi es
+     operable estando minimizado o con el chat abierto.
+     Tachado = voz DESACTIVADA (JARVIS responde por chat, sin hablar).
+     Activo = voz ACTIVADA (responde con voz). */
+  let _vozHabilitada = false;
+  const _SVG_VOZ_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
+  const _SVG_VOZ_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H2v6h4l5 4V5z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
+
+  function _actualizarBotonVoz() {
+    // El altavoz de la barra se sustituyo por el OJO (03/10/2026): el silencio
+    // de voz vive ahora en el clic derecho de la esfera. Se conserva la funcion
+    // para que wSetVoz siga existiendo (la llama pywebviewready).
+    const ids = [];
+    for (let i = 0; i < ids.length; i++) {
+      const b = _el(ids[i]);
+      if (!b) continue;
+      b.innerHTML = _vozHabilitada ? _SVG_VOZ_ON : _SVG_VOZ_OFF;
+      b.title = _vozHabilitada ? 'Voz activada' : 'Voz desactivada';
+      b.classList.toggle('off', !_vozHabilitada);
+    }
+  }
+  window.wSetVoz = function (activa) {
+    _vozHabilitada = !!activa;
+    _actualizarBotonVoz();
+  };
+  _actualizarBotonVoz();
+
+  /* ======================================================================
+     PANEL DE ACCESO A TELEGRAM (orden del jefe 04/10/2026)
+     El jefe introduce TODOS los datos (telefono + api_id + api_hash + bot)
+     DE UNA SOLA VEZ y la app arranca el acceso automaticamente. Si Telegram
+     pide un codigo (o la clave de 2 pasos), ese paso se contesta DESDE ABAJO
+     (caja del chat), sin volver a pedir los datos.
+     ====================================================================== */
+  function _acMsg(t) { const m = _el('acMsg'); if (m) m.textContent = t || ''; }
+  // Paso actual del acceso: "" | "telefono" | "codigo" | "clave"
+  var _acFase = "";
+
+  window.wAbrirAcceso = function (abrir) {
+    if (abrir) {
+      _acMsg('');
+      // Rellena la caja con lo que la app ya tenga (por si el jefe lo ajusta).
+      try {
+        var api = _api();
+        if (api && api.credenciales_leer) {
+          api.credenciales_leer().then(function (r) {
+            if (!r || !r.ok) return;
+            if (r.api_id && _el('acApiId')) _el('acApiId').value = r.api_id;
+            if (r.api_hash && _el('acApiHash')) _el('acApiHash').value = r.api_hash;
+            if (r.bot && _el('acBot')) _el('acBot').value = r.bot;
+            if (r.telefono && _el('acTelefono')) _el('acTelefono').value = r.telefono;
+          }).catch(function () {});
+        }
+      } catch (e) {}
+    }
+    document.body.classList.toggle('acceso-abierto', !!abrir);
+  };
+
+  /**
+   * Coloca el panel en el paso que pida Telegram.
+   *  - "":      aun no hay sesion -> se ven los DATOS (telefono + api).
+   *  - "telefono": TDLib quiere el numero -> se ve el dato de telefono.
+   *  - "codigo"/"clave": TDLib quiere codigo/clave -> se ve el PASO.
+   */
+  window.wSetFase = function (fase) {
+    _acFase = fase || "";
+    var datos = _el('acDatos'), paso = _el('acPasoBloque'), ok = _el('acOk');
+    if (ok) ok.style.display = 'none';
+    if (fase === 'codigo' || fase === 'clave') {
+      if (datos) datos.style.display = 'none';
+      if (paso) paso.style.display = '';
+      var nota = (fase === 'codigo')
+        ? 'Escribe el CÓDIGO que Telegram acaba de enviarte.'
+        : 'Escribe tu CONTRASEÑA de Telegram (verificación en dos pasos).';
+      var nn = _el('acPasoNota'); if (nn) nn.textContent = nota;
+      var inp = _el('acPasoInp');
+      if (inp) {
+        inp.value = '';
+        inp.type = (fase === 'codigo') ? 'number' : 'password';
+        inp.placeholder = (fase === 'codigo') ? 'Código' : 'Contraseña';
+        try { inp.focus(); } catch (e) {}
+      }
+      window.wAbrirAcceso(true);
+    } else {
+      // Sin paso: se muestran los datos (para telefono/api).
+      if (datos) datos.style.display = '';
+      if (paso) paso.style.display = 'none';
+      // NO se hace focus automatico del telefono: subia el teclado solo y
+      // empujaba el boton ENTRAR (fix 20.1).
+    }
+  };
+
+  /** Aviso de texto. Si "cerrarYa" es true, cierra el panel (acceso listo). */
+  window.wAccesoMsg = function (t, cerrarYa) {
+    if (cerrarYa) {
+      // ACCESO CONCEDIDO: se muestra el bloque OK y se deja el boton de chat.
+      var ok = _el('acOk'); if (ok) ok.style.display = '';
+      var d = _el('acDatos'); if (d) d.style.display = 'none';
+      var p = _el('acPasoBloque'); if (p) p.style.display = 'none';
+      _acMsg('');
+      return;
+    }
+    _acMsg(t || '');
+  };
+  window.wSetFaseCodigo = function (codigo, clave) {
+    window.wSetFase(codigo ? 'codigo' : (clave ? 'clave' : ''));
+  };
+
+  (function () {
+    var cerrar = _el('acCerrar');
+    if (cerrar) cerrar.addEventListener('click', function () { window.wAbrirAcceso(false); });
+    // Boton OK: cierra el panel y muestra el chat.
+    var okBtn = _el('acOkBtn');
+    if (okBtn) okBtn.addEventListener('click', function () {
+      window.wAbrirAcceso(false);
+      try { if (window.wSetChatAbierto) window.wSetChatAbierto(true); } catch (e) {}
+    });
+    // ENTRAR: manda TODOS los datos de una sola vez. Se engancha a click,
+    // touchend y a la tecla Enter de cualquier campo (fix 20.1: el click
+    // sintetico fallaba; con varias vias queda blindado).
+    var _acUlt = 0;
+    function _acEntrar() {
+      var ahora = Date.now();
+      if (ahora - _acUlt < 800) return;   // anti-doble-disparo
+      _acUlt = ahora;
+      var tel = (_el('acTelefono') && _el('acTelefono').value || '').trim();
+      var id = (_el('acApiId') && _el('acApiId').value || '').trim();
+      var hash = (_el('acApiHash') && _el('acApiHash').value || '').trim();
+      var bot = (_el('acBot') && _el('acBot').value || '').trim();
+      if (!tel || !id || !hash) {
+        _acMsg('Faltan datos: pon tu teléfono, api_id y api_hash.');
+        return;
+      }
+      _acMsg('Conectando… espera el código de Telegram.');
+      var api = _api();
+      if (api && api.iniciar_acceso) api.iniciar_acceso(tel, id, hash, bot);
+    }
+    var btn = _el('acEntrar');
+    if (btn) {
+      btn.addEventListener('click', _acEntrar);
+      btn.addEventListener('touchend', function (ev) { ev.preventDefault(); _acEntrar(); }, false);
+    }
+    ['acTelefono', 'acApiId', 'acApiHash', 'acBot'].forEach(function (cid) {
+      var c = _el(cid);
+      if (c) c.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter') { ev.preventDefault(); _acEntrar(); }
+      });
+    });
+    // --- ENVIO DEL PASO (codigo/clave) tambien blindado ---
+    var _pvUlt = 0;
+    function _acEnviarPaso() {
+      var ahora = Date.now();
+      if (ahora - _pvUlt < 800) return;
+      _pvUlt = ahora;
+      var inp = _el('acPasoInp');
+      var val = (inp && inp.value || '').trim();
+      if (!val) { _acMsg('Escribe el dato que te pide Telegram.'); return; }
+      _acMsg('Enviando…');
+      var api = _api();
+      if (api && api.enviar_paso) api.enviar_paso(_acFase, val);
+    }
+    var spBtn = _el('acEnviarPaso');
+    if (spBtn) {
+      spBtn.addEventListener('click', _acEnviarPaso);
+      spBtn.addEventListener('touchend', function (ev) { ev.preventDefault(); _acEnviarPaso(); }, false);
+    }
+    var pInp = _el('acPasoInp');
+    if (pInp) pInp.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter') { ev.preventDefault(); _acEnviarPaso(); }
+    });
+    // Boton "Acceso Telegram" dentro de Ajustes.
+    var ab = _el('ajAcceso');
+    if (ab) ab.addEventListener('click', function () {
+      window.wSetFase(_acFase || "");
+      window.wAbrirAcceso(true);
+    });
+  })();
+
+  /* ---- Mini-chat ---- */
+  window.wSetChatAbierto = function (abierto) {
+    document.body.classList.toggle('chat-abierto', !!abierto);
+    _actualizarBotonChat();
+    if (abierto) {
+      // Al abrir el chat, saltar YA al ultimo mensaje (orden del jefe 05/10/2026).
+      setTimeout(function () { _irAlFondoYa(); }, 30);
+      // La burbuja superior NO se cierra al abrir el chat: conviven
+      // (la ventana crece a su altura combinada en Python).
+      const inp = _el('wInput');
+      if (inp) inp.focus();
+      const api = _api();
+      if (api && api.dar_foco) api.dar_foco();
+    }
+  };
+  /** Convierte URLs en enlaces presionables (orden del jefe 04/10/2026).
+   *  Escapa primero el HTML y despues linkifica http/https. El clic se manda a
+   *  Android para abrir el navegador (el WebView no navega por si solo). */
+  function _linkificar(textoEscapado) {
+    return textoEscapado.replace(
+      /(https?:\/\/[^\s<]+)/g,
+      function (url) {
+        return '<a class="link-jefe" href="#" data-url="' + url + '">' + url + '</a>';
+      }
+    );
+  }
+  // Un solo listener (delegado) para todos los enlaces del chat.
+  document.addEventListener('click', function (ev) {
+    var a = ev.target && ev.target.closest ? ev.target.closest('a.link-jefe') : null;
+    if (!a) return;
+    ev.preventDefault();
+    var url = a.getAttribute('data-url') || '';
+    if (!url) return;
+    var api = _api();
+    if (api && api.abrir_enlace) api.abrir_enlace(url);
+    else window.open(url, '_blank');
+  });
+
+  /* ---- Boton "ir al final" + SEGUIMIENTO DEL FONDO SUAVE (fix 19.6) ----
+     El chat se auto-desplaza SOLO si el jefe esta al fondo. Y ya NO da un salto
+     seco: el scroll ACOMPANA el mensaje que va creciendo (tecleo) poco a poco,
+     avanzando por frame (requestAnimationFrame), asi no se ve el "brinco" raro.
+     El seguimiento solo se "suelta" cuando el JEFE toca/rueda el chat y lo sube a
+     leer (nunca por un movimiento automatico nuestro). Si esta arriba, aparece el
+     boton flotante para viajar al final cuando el quiera. */
+  let _pinAbajo = true;      // true = seguir automaticamente el fondo
+  let _rafFondo = null;      // frame del seguimiento en curso
+  let _tInteraccion = 0;     // hasta cuando el jefe esta tocando/rodando el chat
+  let _tForzarFondo = 0;     // marca: bajar al final a la fuerza (boton) unos ms
+  let _bajadaRapida = false; // true mientras el boton "ir al final" baja de prisa
+  function _medirFondo(zona) {
+    return (zona.scrollHeight - zona.scrollTop - zona.clientHeight) <= 40;
+  }
+  // Un paso del seguimiento: acerca el scroll al fondo (suavizado).
+  // Si _rapido (boton "ir al final"), da pasos GRANDES para llegar ya.
+  function _pasoFondo() {
+    _rafFondo = null;
+    const zona = _el('wMensajes');
+    if (!zona || !_pinAbajo) return;
+    // Si una interaccion reciente puso el pin en false pero el jefe acaba de
+    // pedir "ir al final", se fuerza el pegaje otra vez durante esa ventana.
+    if (!_pinAbajo && performance.now() >= _tForzarFondo) return;
+    const objetivo = zona.scrollHeight - zona.clientHeight;
+    const dif = objetivo - zona.scrollTop;
+    if (dif <= 0.5) return;                       // ya pegado al fondo
+    let paso;
+    if (_bajadaRapida) {
+      // BOTON "ir al final": bajada casi instantanea (unos pocos frames).
+      paso = Math.max(20, dif * 0.55);
+    } else {
+      // Seguimiento del tecleo: suave y acompasado (max ~media linea por frame).
+      paso = Math.max(1, Math.min(12, dif * 0.5));
+    }
+    zona.scrollTop = zona.scrollTop + paso;
+    if (paso < dif) _rafFondo = requestAnimationFrame(_pasoFondo);
+  }
+  // Pide seguir el fondo (se agrupa: como mucho un frame a la vez).
+  function _seguirFondo(forzar) {
+    if (forzar) _pinAbajo = true;
+    if (performance.now() < _tForzarFondo) _pinAbajo = true;
+    if (!_pinAbajo || _rafFondo) return;
+    _rafFondo = requestAnimationFrame(_pasoFondo);
+  }
+  // BAJADA INSTANTANEA al final (orden del jefe 05/10/2026): al abrir la app y al
+  // ENVIAR un mensaje se salta YA al fondo, sin la bajada lenta que molestaba.
+  function _irAlFondoYa() {
+    const zona = _el('wMensajes');
+    if (!zona) return;
+    if (_rafFondo) { try { cancelAnimationFrame(_rafFondo); } catch (e) {} _rafFondo = null; }
+    _pinAbajo = true;
+    _tForzarFondo = performance.now() + 400;
+    zona.scrollTop = zona.scrollHeight;
+    document.body.classList.remove('chat-scroll-arriba');
+    try { _mostrarBarraScroll(); } catch (e) {}
+  }
+  // Si la ventana cambia de tamano (teclado al escribir, girar el movil) y
+  // estabamos abajo, se salta YA al fondo: el teclado reseteaba el scroll.
+  try {
+    window.addEventListener('resize', function () { if (_pinAbajo) _irAlFondoYa(); });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', function () {
+        if (_pinAbajo) _irAlFondoYa();
+      });
+    }
+  } catch (e) {}
+  // Marca que el JEFE esta interactuando con el chat (tacto, rueda o raton).
+  function _marcaInteraccion() { _tInteraccion = performance.now() + 1500; }
+  function _marcarScroll() {
+    const zona = _el('wMensajes');
+    if (!zona) return;
+    const alFondo = _medirFondo(zona);
+    // SOLO el jefe (tocando/rodando) puede despegar el scroll del fondo; los
+    // movimientos automaticos (seguimiento, recorte, tramos) NUNCA lo hacen.
+    if (!_recortando && !_cargandoHistorial && performance.now() < _tInteraccion && !alFondo) _pinAbajo = false;
+    if (alFondo) _pinAbajo = true;
+    document.body.classList.toggle('chat-scroll-arriba', !alFondo);
+    // BARRA AUTO-OCULTA: se muestra mientras hay scroll y se apaga sola.
+    _mostrarBarraScroll();
+    // SCROLL INFINITO hacia atras (04/10/2026): si llega arriba del todo, se
+    // carga otro tramo de mensajes antiguos (como Telegram), sin brincar.
+    if (zona.scrollTop < 60 && _pintadosHasta < _hist.length && _hist.length) {
+      _cargarTramoArriba();
+    }
+  }
+
+  // La barra de scroll ya NO reserva ancho (CSS: width 0, overlay). Se deja
+  // esta funcion inofensiva por compatibilidad, sin tocar el ancho del chat.
+  // (fix 04/10/2026: al no haber barra que ocupe espacio, los mensajes ya no se
+  // recalculan ni se ven bugueados al llegar uno nuevo.)
+  let _tBarra = null;
+  function _mostrarBarraScroll() {
+    const zona = _el('wMensajes');
+    if (!zona) return;
+    zona.classList.add('scrolling');
+    if (_tBarra) clearTimeout(_tBarra);
+    _tBarra = setTimeout(function () {
+      zona.classList.remove('scrolling');
+    }, 900);
+  }
+  window.wMostrarScroll = _mostrarBarraScroll;
+  (function () {
+    const zona = _el('wMensajes');
+    if (zona) {
+      zona.addEventListener('scroll', _marcarScroll, { passive: true });
+      // El toque/rueda del jefe es la UNICA señal de que quiere subir a leer.
+      zona.addEventListener('touchstart', _marcaInteraccion, { passive: true });
+      zona.addEventListener('touchmove', _marcaInteraccion, { passive: true });
+      zona.addEventListener('wheel', _marcaInteraccion, { passive: true });
+      zona.addEventListener('mousedown', _marcaInteraccion, { passive: true });
+      // El movimiento por teclado/arrastre tambien cuenta como "estoy subiendo".
+      zona.addEventListener('keydown', _marcaInteraccion, { passive: true });
+      zona.addEventListener('pointerdown', _marcaInteraccion, { passive: true });
+    }
+    const b = _el('btnIrFinal');
+    if (b) b.addEventListener('click', () => {
+      // Baja casi de golpe (19.8) y, ademas, fuerza el pegaje al fondo durante
+      // ~1 s para que ningun aviso de interaccion (que aun ve el scroll arriba)
+      // lo suelte.
+      _bajadaRapida = true;
+      _pinAbajo = true;
+      _marcarScroll();
+      _seguirFondo(false);
+      _tForzarFondo = performance.now() + 1000;
+      setTimeout(function () { _bajadaRapida = false; }, 700);
+    });
+  })();
+
+  /* ===== EFECTOS DE APARICION DE MENSAJES =====
+     El jefe elige uno en el panel de la ruedita. Por defecto: "escribir".
+     - escribir: teclea el texto con un cursor parpadeante que vive 3.5 s y
+       SOLO aparece en el ultimo mensaje (nunca duplicado).
+     - deslizar / fundido / zoom: los keyframes del CSS. */
+  const _EFECTOS = ['escribir', 'deslizar', 'fundido', 'zoom', 'rebote', 'glitch', 'maquina', 'neon'];
+  let _efectoActual = 'escribir';
+  try {
+    const g = localStorage.getItem('jarvis_efecto');
+    if (g && _EFECTOS.indexOf(g) >= 0) _efectoActual = g;
+  } catch (e) {}
+
+  /* ---- Historial persistente: VARIBLES ARRIBA (fix 04/10/2026) ----
+     Declaradas ANTES de _insertarMensaje: let/const tienen "temporal dead
+     zone" (no se elevan). Antes estaban despues y _insertarMensaje lanzaba
+     TypeError -> el efecto de tecleo se cortaba y no funcionaba. */
+  let _hist = [];          // TODO el historial guardado (cabeza = mas viejo)
+  let _histGuardando = false;
+  let _cargandoHistorial = false;
+  let _pintadosHasta = 0;  // indice en _hist del tramo ya pintado (desde abajo)
+  const _TRAMO = 40;       // cuantos mensajes se pintan por tramo
+  const _TOPE_HIST = 2000; // tope del historial guardado en disco
+  const _TOPE_DOM = 160;   // tope de nodos vivos en pantalla (rendimiento)
+  let _guardandoPendiente = false;
+
+  // Quita TODOS los cursores de escritura (para no duplicar parpadeos).
+  function _quitarCursoresEsc() {
+    const zona = _el('wMensajes');
+    if (!zona) return;
+    const cs = zona.querySelectorAll('.cursor-esc');
+    for (let i = 0; i < cs.length; i++) {
+      const c = cs[i];
+      if (c._timer) clearTimeout(c._timer);
+      c.remove();
+    }
+  }
+
+  // --- Control de "quien teclea" (fix 04/10/2026) ---
+  // Solo UN mensaje se teclea a la vez. Si llega otro mensaje mientras el
+  // anterior se esta tecleando, el anterior se COMPLETA de golpe (sin cursor)
+  // y el nuevo empieza a teclearse. Asi nunca se solapan ni traban la app.
+  let _tecleando = null;      // {el, html, timer, span, i}
+  let _tokenTecleo = 0;
+
+  // Termina YA el mensaje que se este tecleando (lo pinta completo, sin cursor).
+  function _completarTecleo() {
+    if (!_tecleando) return;
+    const t = _tecleando;
+    _tecleando = null;
+    if (t.timer) clearTimeout(t.timer);
+    if (t.el && document.body.contains(t.el)) {
+      t.el.innerHTML = t.html;             // texto final, enlaces incluidos
+      const c = t.el.querySelector('.cursor-esc');
+      if (c) c.remove();                    // sin cursor: ya no es el ultimo
+    }
+  }
+
+  // Teclea el texto poco a poco; al terminar deja un cursor 3.5 s (uno solo).
+  function _teclearMensaje(el, html) {
+    // Si algo se estaba tecleando, se completa de inmediato.
+    _completarTecleo();
+    const plano = el.getAttribute('data-plano') || '';
+    el.innerHTML = '';
+    const span = document.createElement('span');
+    el.appendChild(span);
+    const cur = document.createElement('span');
+    cur.className = 'cursor-esc';
+    el.appendChild(cur);
+    const token = ++_tokenTecleo;
+    const estado = { el: el, html: html, timer: null, span: span, i: 0 };
+    _tecleando = estado;
+    let i = 0;
+    // VELOCIDAD DEL TECLEO (fix 19.8): el jefe lo quiere mas rapido aun.
+    // Ahora 10-22 ms por letra, con el suelo en 10 ms (por debajo el WebView del
+    // movil empieza a no repintar bien).
+    const paso = Math.max(10, Math.min(22, 360 / Math.max(1, plano.length)));
+    (function tick() {
+      // Si otro mensaje tomo el control, este ya fue completado: salir.
+      if (token !== _tokenTecleo || _tecleando !== estado) return;
+      if (!document.body.contains(el)) { _tecleando = null; return; }
+      if (i >= plano.length) {
+        // Al terminar, pinta el HTML final (enlaces incluidos) y deja el cursor
+        // de escritura (parpadeante) unos segundos.
+        el.innerHTML = html;
+        const c2 = document.createElement('span');
+        c2.className = 'cursor-esc';
+        // El cursor va INLINE con el texto, ANTES de la hora (que es un bloque
+        // abajo). Asi no salta a la linea siguiente (fix 05/10/2026).
+        const horaEl = el.querySelector('.hora');
+        if (horaEl) el.insertBefore(c2, horaEl); else el.appendChild(c2);
+        c2._timer = setTimeout(function () { c2.remove(); }, 3500);
+        estado.timer = c2._timer;
+        _tecleando = null;
+        return;
+      }
+      i += 1;
+      span.textContent = plano.slice(0, i);
+      // SEGUIMIENTO SUAVE (fix 19.6): en vez de saltar al fondo en cada letra
+      // (lo que se veia como un "brinco" raro), se pide el seguimiento; el
+      // scroll acompana el texto que crece, frame a frame. Solo si esta abajo.
+      _seguirFondo();
+      estado.timer = setTimeout(tick, paso);
+    })();
+  }
+
+  window.wSetEfecto = function (nombre) {
+    // Si el valor no es valido, se cae a 'escribir' (efecto por defecto).
+    if (_EFECTOS.indexOf(nombre) < 0) nombre = 'escribir';
+    _efectoActual = nombre;
+    try { localStorage.setItem('jarvis_efecto', nombre); } catch (e) {}
+    // Marca el boton activo.
+    try {
+      const ops = document.querySelectorAll('#ajEfectos .aj-op');
+      for (let i = 0; i < ops.length; i++) {
+        ops[i].classList.toggle('activo', ops[i].getAttribute('data-efecto') === nombre);
+      }
+    } catch (e) {}
+  };
+
+  /* EFECTO POR DEFECTO GARANTIZADO (orden del jefe 04/10/2026):
+     Al iniciar la app, el efecto de maquina de escribir ('escribir') queda
+     activo SIEMPRE. Si el jefe lo cambia, su eleccion se guarda y se respeta
+     en los siguientes arranques (persistente). Si el valor guardado no es
+     valido, se vuelve a 'escribir'. */
+  window.wEfectoPorDefecto = function () {
+    let efecto = 'escribir';
+    try {
+      const g = localStorage.getItem('jarvis_efecto');
+      if (g && _EFECTOS.indexOf(g) >= 0) efecto = g;
+    } catch (e) {}
+    _efectoActual = efecto;
+    try { window.wSetEfecto(efecto); } catch (e) {}
+    return efecto;
+  };
+
+  window.wAddMensaje = function (rol, texto, fecha) {
+    _insertarMensaje(rol, texto, false, fecha);
+  };
+
+  /* RECARGA AL ABRIR (fix 05/10/2026): agrega SOLO los mensajes que falten,
+     comparando por CONTENIDO desde el final (sin depender de la hora). Asi los
+     mensajes que llegaron con la app cerrada se ven al abrir, sin duplicar. */
+  window.wRecargarChat = function (lista) {
+    try {
+      const arr = (typeof lista === 'string') ? JSON.parse(lista) : lista;
+      if (!arr || !arr.length) return;
+      const zona = _el('wMensajes');
+      if (!zona) return;
+      let ult = null;
+      for (let i = _hist.length - 1; i >= 0; i--) {
+        if (_hist[i] && _hist[i].de && _hist[i].tipo !== 'imagen') { ult = _hist[i]; break; }
+      }
+      let desde = 0;
+      if (ult) {
+        for (let i = arr.length - 1; i >= 0; i--) {
+          if (arr[i] && arr[i].texto === ult.texto && arr[i].de === ult.de) { desde = i + 1; break; }
+        }
+      }
+      const nuevos = arr.slice(desde);
+      if (!nuevos.length) return;
+      _completarTecleo();
+      for (let j = 0; j < nuevos.length; j++) {
+        const m = nuevos[j];
+        if (!m || (m.de !== 'jefe' && m.de !== 'jarvis') || !m.texto) continue;
+        const horaMs = (m.fecha && m.fecha > 0)
+          ? (m.fecha < 100000000000 ? m.fecha * 1000 : m.fecha) : Date.now();
+        _hist.push({ de: m.de, texto: m.texto, hora: horaMs });
+        _insertarMensaje(m.de, m.texto, true, m.fecha || 0);
+        _pintadosHasta += 1;
+      }
+      _pintadosHasta = Math.min(_pintadosHasta, _hist.length);
+      _guardarHistorial();
+      _irAlFondoYa();
+    } catch (e) {}
+  };
+
+  /* ---- IMAGENES EN EL CHAT (19.0, orden del jefe 04/10/2026) ----
+     Una foto (que el jefe envia o que JARVIS manda) se pinta como burbuja con
+     la imagen. Se guarda en el historial como {de, tipo:'imagen', texto:ruta}
+     para que se vuelva a ver al reabrir (entra en la carga por tramos). */
+  /* ---- IMAGEN AMPLIABLE A PANTALLA COMPLETA (19.1, 04/10/2026) ----
+     Al tocar la imagen en el chat se abre encima, con zoom por pellizco y
+     doble toque; se cierra con la X o tocando el fondo. */
+  window.wAddImagen = function (rol, ruta) {
+    _insertarImagen(rol, ruta, false);
+  };
+
+  window.wImagenGrande = function (abrir, src) {
+    let visor = _el('wLupa');
+    if (!visor) {
+      visor = document.createElement('div');
+      visor.id = 'wLupa';
+      visor.className = 'lupa';
+      visor.innerHTML =
+        '<button class="lupa-x" id="wLupaX" aria-label="cerrar">✕</button>' +
+        '<img id="wLupaImg" alt="imagen">';
+      document.body.appendChild(visor);
+      const cerrar = function () { visor.classList.remove('visible'); };
+      visor.addEventListener('click', function (e) {
+        if (e.target === visor) cerrar();
+      });
+      _el('wLupaX').addEventListener('click', cerrar);
+      // Zoom con rueda (PC), doble toque (movil) y PELLIZCO de dos dedos con
+      // arrastre (fix 19.9, orden del jefe 04/10/2026: antes NO se podia hacer
+      // zoom con los dedos). Todo con Touch Events para funcionar en el WebView.
+      let escala = 1, tx = 0, ty = 0;
+      const apli = function () {
+        const img = _el('wLupaImg');
+        if (img) img.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + escala + ')';
+      };
+      const img = _el('wLupaImg');
+      let ultTap = 0;
+      img.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const ahora = Date.now();
+        if (ahora - ultTap < 300) {
+          escala = (escala > 1.05) ? 1 : 2.2;
+          if (escala === 1) { tx = 0; ty = 0; }
+          apli();
+        }
+        ultTap = ahora;
+      });
+      img.addEventListener('wheel', function (e) {
+        e.preventDefault();
+        escala = Math.min(6, Math.max(1, escala - e.deltaY * 0.002));
+        if (escala === 1) { tx = 0; ty = 0; }
+        apli();
+      }, { passive: false });
+      // ---- PELLIZCO + ARRASTRE (tactil) ----
+      let d0 = 0, e0 = 1, x0 = 0, y0 = 0, arrastrando = false;
+      const dist = function (t) {
+        const dx = t[0].clientX - t[1].clientX, dy = t[0].clientY - t[1].clientY;
+        return Math.sqrt(dx * dx + dy * dy);
+      };
+      img.addEventListener('touchstart', function (e) {
+        e.stopPropagation();
+        if (e.touches.length === 2) {
+          d0 = dist(e.touches); e0 = escala; arrastrando = false;
+        } else if (e.touches.length === 1 && escala > 1.05) {
+          arrastrando = true;
+          x0 = e.touches[0].clientX - tx;
+          y0 = e.touches[0].clientY - ty;
+        }
+      }, { passive: true });
+      img.addEventListener('touchmove', function (e) {
+        e.preventDefault();               // sin esto el WebView hace su propio zoom
+        e.stopPropagation();
+        if (e.touches.length === 2) {
+          const d = dist(e.touches);
+          if (d0 > 0) escala = Math.min(6, Math.max(1, e0 * d / d0));
+          if (escala === 1) { tx = 0; ty = 0; }
+          apli();
+        } else if (arrastrando && e.touches.length === 1 && escala > 1.05) {
+          tx = e.touches[0].clientX - x0;
+          ty = e.touches[0].clientY - y0;
+          apli();
+        }
+      }, { passive: false });
+      img.addEventListener('touchend', function (e) {
+        if (e.touches.length < 2) d0 = 0;
+        if (e.touches.length === 0) arrastrando = false;
+      }, { passive: true });
+      visor._reset = function () { escala = 1; tx = 0; ty = 0; apli(); };
+    }
+    if (abrir) {
+      const img = _el('wLupaImg');
+      if (img) img.src = src || '';
+      if (visor._reset) visor._reset();
+      visor.classList.add('visible');
+    } else {
+      visor.classList.remove('visible');
+    }
+  };
+  function _abrirImagenGrande(src) { window.wImagenGrande(true, src); }
+
+
+  function _insertarImagen(rol, ruta, esHistorial) {
+    const zona = _el('wMensajes');
+    if (!zona) return;
+    _completarTecleo();
+    _quitarCursoresEsc();
+    const d = document.createElement('div');
+    d.className = 'msg msg-' + (rol === 'jefe' ? 'jefe' : 'jarvis') + ' msg-img';
+    if (esHistorial || _cargandoHistorial) d.classList.add('sin-anim');
+    const im = document.createElement('img');
+    im.className = 'img-chat';
+    im.alt = 'imagen';
+    // Carga desde archivo local (el WebView tiene acceso a file://).
+    im.src = (ruta && ruta.indexOf('file:') === 0) ? ruta : ('file://' + ruta);
+    // ABRIR/AMPLIAR (orden del jefe 04/10/2026): al tocar la imagen se abre a
+    // pantalla completa con zoom (para mostrarsela a los clientes).
+    im.addEventListener('click', function () { _abrirImagenGrande(im.src); });
+    im.addEventListener('error', function () {
+      d.classList.add('img-fallida');
+      if (!d.querySelector('.img-aviso')) {
+        const av = document.createElement('span');
+        av.className = 'img-aviso';
+        av.textContent = '🖼 imagen no disponible';
+        d.appendChild(av);
+      }
+    });
+    d.appendChild(im);
+    const alFondo = _medirFondo(zona);
+    zona.appendChild(d);
+    if (!esHistorial) {
+      if (alFondo) _pinAbajo = true;
+      _seguirFondo();                     // baja suave hasta la imagen (fix 19.6)
+      if (!alFondo) _marcarScroll();      // si ya estamos abajo, no parpadea el boton
+      // Persiste en el historial como imagen (para la carga por tramos).
+      _hist.push({ de: rol, tipo: 'imagen', texto: ruta });
+      if (_hist.length > _TOPE_HIST) _hist = _hist.slice(-_TOPE_HIST);
+      // FIX 19.6: la imagen tambien queda contada como pintada (mantiene al dia
+      // el indice del tramo y evita que el scroll hacia atras cargue repetidos).
+      _pintadosHasta = Math.min(_hist.length, _pintadosHasta + 1);
+      if (!_guardandoPendiente) {
+        _guardandoPendiente = true;
+        setTimeout(function () { _guardandoPendiente = false; _guardarHistorial(); }, 700);
+      }
+      _recortarViejos();
+    }
+  }
+
+  // Nivel interno: pinta un mensaje. conScroll=false al cargar historial/tramos
+  // (no debe auto-bajar ni animar); true al llegar mensajes nuevos en vivo.
+  /* Hora corta HH:MM para cada globo (fix 05/10/2026). */
+  function _horaTexto(ms) {
+    try {
+      const d = new Date(ms);
+      const h = d.getHours(), m = d.getMinutes();
+      return (h < 10 ? '0' + h : '' + h) + ':' + (m < 10 ? '0' + m : '' + m);
+    } catch (e) { return ''; }
+  }
+
+  function _insertarMensaje(rol, texto, esHistorial, fecha) {
+    const zona = _el('wMensajes');
+    if (!zona) return;
+    // ORDEN CORRECTO (fix 04/10/2026): PRIMERO completar el mensaje que se este
+    // tecleando (asi queda con su texto final y sin romperse). DESPUES retirar
+    // los cursores de los mensajes que ya no son el ultimo. Antes se hacia al
+    // reves y el mensaje en curso quedaba "bugueado" (a medio pintar, a saltos).
+    _completarTecleo();
+    const cursores = zona.querySelectorAll('.msg .cursor');
+    for (let i = 0; i < cursores.length; i++) { if (cursores[i].remove) cursores[i].remove(); }
+    // Limpia cursores de escritura huerfanos (los que ya expiraron).
+    _quitarCursoresEsc();
+    const plano = String(texto || '');
+    // HORA del mensaje (fix 05/10/2026): la real (fecha en segundos o ms) o la
+    // actual, mostrada pequenita en la esquina inferior del globo.
+    const horaMs = (fecha && fecha > 0)
+      ? (fecha < 100000000000 ? fecha * 1000 : fecha) : Date.now();
+    const seguro = _linkificar(
+      plano
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\*\*([^*]+)\*\*/g, '$1')
+    );
+    const d = document.createElement('div');
+    d.className = 'msg msg-' + (rol === 'jefe' ? 'jefe' : 'jarvis');
+    // OJO: solo el HISTORIAL se pinta sin animacion. NO se usa _cargandoHistorial
+    // aqui: si quedaba pegado en true, TODOS los mensajes salian sin tecleo
+    // (fix 05/10/2026: el efecto de maquina de escribir dejo de funcionar).
+    const sinAnim = esHistorial;
+    if (sinAnim) d.classList.add('sin-anim');
+    // EFECTOS: solo en los mensajes de JARVIS. Los del jefe van SIEMPRE en neon,
+    // de forma predeterminada y definitiva (orden del jefe 05/10/2026).
+    const efecto = (rol === 'jefe') ? 'neon' : _efectoActual;
+    const htmlFinal = seguro + (rol === 'jarvis' ? '<span class="cursor"></span>' : '') +
+      '<span class="hora">' + _horaTexto(horaMs) + '</span>';
+    if (sinAnim) {
+      // Historial: se pinta directo, sin efecto.
+      d.innerHTML = htmlFinal;
+    } else if (efecto === 'escribir') {
+      d.classList.add('fx-escribir');
+      d.setAttribute('data-plano', plano);
+    } else {
+      d.classList.add('fx-' + efecto);
+      d.innerHTML = htmlFinal;
+    }
+    // Solo sigue el fondo si el jefe YA estaba abajo (orden 04/10/2026).
+    const alFondo = _medirFondo(zona);
+    zona.appendChild(d);
+    if (!sinAnim && efecto === 'escribir') {
+      _teclearMensaje(d, htmlFinal);
+    }
+    if (!esHistorial) {
+      if (rol === 'jefe') {
+        // MENSAJE DEL JEFE: baja YA al final (orden 05/10/2026, sin bajada lenta).
+        _irAlFondoYa();
+      } else {
+        if (alFondo) _pinAbajo = true;
+        _seguirFondo();                   // acompana el mensaje sin saltos (fix 19.6)
+        if (!alFondo) _marcarScroll();    // si ya estamos abajo, no parpadea el boton
+      }
+      // Persiste el mensaje (jefe/jarvis) en el historial del telefono.
+      window.wPushHistorial(rol === 'jefe' ? 'jefe' : 'jarvis', plano, horaMs);
+      // FIX 19.6: el mensaje en vivo ya esta pintado -> se cuenta (indice del
+      // tramo al dia; sin esto el scroll hacia atras cargaba repetidos).
+      _pintadosHasta = Math.min(_hist.length, _pintadosHasta + 1);
+      // Recorta nodos viejos si el chat crece mucho (blinda RAM/fluidez).
+      _recortarViejos();
+    }
+  }
+
+  /* ---- Historial persistente con CARGA POR TRAMOS (04/10/2026) ----
+     Igual que Telegram: los mensajes NO se pierden, pero al abrir se pintan
+     solo los ULTIMOS (tramo), no todo el historial. Al subir hasta arriba se
+     carga otro tramo mas antiguo ("scroll infinito" hacia atras). Asi el chat
+     soporta miles de mensajes SIN laguear y sin comer RAM.
+     (Las variables viven mas arriba, antes de _insertarMensaje.) */
+
+  /* FIX 04/10/2026: _quienMira() se llamaba pero NUNCA se definio -> cada vez
+     que se pintaba/cargaba un mensaje lanzaba "ReferenceError: _quienMira is
+     not defined" y ROMPIA el efecto de tecleo (el mensaje quedaba bugueado).
+     Devuelve true si conviene recortar nodos viejos (el chat tiene mas de lo
+     permitido en pantalla). */
+  function _quienMira() {
+    const zona = _el('wMensajes');
+    if (!zona) return false;
+    return zona.children.length > _TOPE_DOM;
+  }
+
+  /* Carga un tramo de mensajes antiguos ARRIBA del chat, sin brincar el scroll. */
+  function _cargarTramoArriba() {
+    const zona = _el('wMensajes');
+    if (!zona) return;
+    const desde = Math.max(0, _hist.length - _pintadosHasta - _TRAMO);
+    const hasta = _hist.length - _pintadosHasta;
+    if (hasta <= 0 || desde >= hasta) return;
+    const altoAntes = zona.scrollHeight;
+    const quien = _quienMira();
+    _cargandoHistorial = true;
+    try {
+      for (let i = desde; i < hasta; i++) {
+        const m = _hist[i];
+        if (!m) continue;
+        if (m.tipo === 'imagen') {
+          _insertarImagen(m.de, m.texto, true);
+        } else if (m.de === 'jefe' || m.de === 'jarvis') {
+          _insertarMensaje(m.de, m.texto, true);
+        }
+      }
+    } finally {
+      _cargandoHistorial = false;   // BLINDAJE: nunca queda pegado en true
+    }
+    _pintadosHasta = _hist.length - desde;
+    if (quien) _recortarViejos();
+    const altoDespues = zona.scrollHeight;
+    zona.scrollTop = zona.scrollTop + (altoDespues - altoAntes);
+    _marcarScroll();
+  }
+
+  /* Recorta los nodos mas viejos de arriba si se pasa del tope (RAM). */
+  let _recortando = false;  // true mientras se quitan nodos viejos (ajuste propio)
+  function _recortarViejos() {
+    const zona = _el('wMensajes');
+    if (!zona) return;
+    let nodos = zona.children.length;
+    if (nodos <= _TOPE_DOM) return;
+    _recortando = true;                       // los movimientos de scroll son NUESTROS
+    const altoAntes = zona.scrollHeight;
+    while (nodos > _TOPE_DOM && zona.firstChild) {
+      zona.removeChild(zona.firstChild);
+      nodos--;
+      _pintadosHasta = Math.max(_TRAMO, _pintadosHasta - 1);
+    }
+    const altoDespues = zona.scrollHeight;
+    zona.scrollTop = Math.max(0, zona.scrollTop - (altoAntes - altoDespues));
+    _recortando = false;
+  }
+
+  function _cargarHistorial() {
+    // AL ENTRAR (ajuste 05/10/2026, orden del jefe): se pintan los ULTIMOS
+    // mensajes de la conversacion, SIN animacion (para que no se re-tecleen).
+    // El saludo de JARVIS aparece SOLO si todavia no hay conversacion.
+    try {
+      const api = _api();
+      if (!api || !api.historial_leer) { _saludoInicial(); return; }
+      api.historial_leer().then((r) => {
+        const txt = (r && typeof r.leer === 'string') ? r.leer : (typeof r === 'string' ? r : '');
+        let arr = [];
+        try { arr = JSON.parse(txt); } catch (e) { arr = []; }
+        if (!Array.isArray(arr)) arr = [];
+        _hist = arr;
+        if (_hist.length === 0) { _saludoInicial(); return; }
+        // Solo el ULTIMO tramo (como Telegram), pintado como historial.
+        const desde = Math.max(0, _hist.length - _TRAMO);
+        _cargandoHistorial = true;
+        try {
+          for (let i = desde; i < _hist.length; i++) {
+            const m = _hist[i];
+            if (!m) continue;
+            if (m.tipo === 'imagen') {
+              _insertarImagen(m.de, m.texto, true);
+            } else if (m.de === 'jefe' || m.de === 'jarvis') {
+              _insertarMensaje(m.de, m.texto, true, m.hora || 0);
+            }
+          }
+        } finally {
+          // BLINDAJE (05/10/2026): pase lo que pase, nunca queda pegado en true
+          // (si quedaba, el chat perdia animaciones y el pin del scroll).
+          _cargandoHistorial = false;
+        }
+        _pintadosHasta = _hist.length - desde;
+        // AL ABRIR se salta YA al final (orden del jefe 05/10/2026): nada de
+        // empezar arriba y bajar despacio.
+        _irAlFondoYa();
+        _marcarScroll();
+      }).catch(() => { _saludoInicial(); });
+    } catch (e) { _saludoInicial(); }
+  }
+
+  /* Saludo de JARVIS cuando la conversacion esta vacia (sin animacion). */
+  function _saludoInicial() {
+    const bienvenida = 'Hola, jefe. Soy JARVIS. ¿En qué le ayudo?';
+    _hist.push({ de: 'jarvis', texto: bienvenida });
+    _insertarMensaje('jarvis', bienvenida, true);
+    _pintadosHasta = _hist.length;
+    const zona = _el('wMensajes');
+    if (zona) {
+      _pinAbajo = true;
+      zona.scrollTop = zona.scrollHeight;
+      _marcarScroll();
+    }
+  }
+  function _guardarHistorial() {
+    try {
+      const api = _api();
+      if (!api || !api.historial_guardar || _histGuardando) return;
+      _histGuardando = true;
+      api.historial_guardar(JSON.stringify(_hist)).then(() => { _histGuardando = false; })
+        .catch(() => { _histGuardando = false; });
+    } catch (e) { _histGuardando = false; }
+  }
+  // FIX 04/10/2026: estas tres eran `window.x = function(){}` (NO se elevan) y
+  // se LLAMAN antes de definirse en _insertarMensaje -> TypeError y el tecleo
+  // se cortaba. Ahora son funciones DECLARADAS (se elevan) y se exponen a window.
+  function wSetHistorial(json) {
+    try {
+      const arr = JSON.parse(json || '[]');
+      if (Array.isArray(arr)) { _hist = arr; }
+    } catch (e) { }
+  }
+  function wPushHistorial(rol, texto, horaMs) {
+    if (rol !== 'jefe' && rol !== 'jarvis') return;
+    _hist.push({ de: rol, texto: texto, hora: horaMs || Date.now() });
+    // Tope del historial en disco: se tira lo mas viejo de a poco (no de golpe,
+    // para que la carga por tramos siga teniendo sentido).
+    if (_hist.length > _TOPE_HIST) _hist = _hist.slice(-_TOPE_HIST);
+    // Guardado DIFERIDO (blinda fluidez): agrupa escrituras seguidas. En chats
+    // rapidos no se escribe disco en cada mensaje, solo al final de la racha.
+    if (_guardandoPendiente) return;
+    _guardandoPendiente = true;
+    setTimeout(function () { _guardandoPendiente = false; _guardarHistorial(); }, 700);
+  }
+  function wLimpiarHistorial() {
+    _hist = [];
+    _pintadosHasta = 0;
+    _guardarHistorial();
+  }
+  window.wSetHistorial = wSetHistorial;
+  window.wPushHistorial = wPushHistorial;
+  window.wLimpiarHistorial = wLimpiarHistorial;
+  _cargarHistorial();
+
+  /* ---- BAJAR AL FINAL AL ABRIR (fix 19.9, orden del jefe 04/10/2026) ----
+     Al cerrar y reabrir la app, el chat debe quedar SIEMPRE en lo ultimo
+     hablado. Las imagenes y el tecleo terminan de crecer DESPUES del primer
+     pintado, asi que un solo scrollTop no basta: se reafirma varias veces. */
+  function _irAlFondoAlFinal() {
+    const zona = _el('wMensajes');
+    if (!zona) return;
+    _pinAbajo = true;
+    zona.scrollTop = zona.scrollHeight;
+    try { zona.scrollTo({ top: zona.scrollHeight, behavior: 'auto' }); } catch (e) {}
+    _marcarScroll();
+  }
+  window.wIrAlFondo = _irAlFondoAlFinal;
+  // Refuerzos: a los pocos ms y al terminar de cargar imagenes diferidas.
+  [80, 250, 600, 1100, 1800].forEach(function (ms) {
+    setTimeout(_irAlFondoAlFinal, ms);
+  });
+
+  // Pantalla de carga ELIMINADA (orden del jefe 04/10/2026): arranque directo.
+
+  function _enviar() {
+    const inp = _el('wInput');
+    if (!inp) return;
+    const t = inp.value.trim();
+    if (!t) return;
+    inp.value = '';
+    const api = _api();
+    if (api && api.enviar_mensaje) api.enviar_mensaje(t);
+  }
+  // Boton ADJUNTAR (clip): abre el selector de archivos del telefono y manda
+  // la imagen o el documento por Telegram (orden del jefe 04/10/2026).
+  (function () {
+    const b = _el('btnAdjuntar');
+    if (!b) return;
+    b.addEventListener('click', () => {
+      const api = _api();
+      if (api && api.adjuntar) api.adjuntar();
+    });
+  })();
+
+  // Mientras JARVIS trabaja, el boton se vuelve ROJO y sirve para interrumpir
+  // (orden del jefe 04/10/2026); el resto del tiempo, envia.
+  // Si el jefe escribe texto en la caja, el boton vuelve a "enviar" (aunque
+  // JARVIS siga trabajando) para poder mandar el mensaje (orden 04/10/2026).
+  let _trabajandoBtn = false;
+  function _refrescarBotonEnviar() {
+    const b = _el('btnEnviar');
+    if (!b) return;
+    const inp = _el('wInput');
+    const hayTexto = !!(inp && inp.value && inp.value.trim().length > 0);
+    const esStop = _trabajandoBtn && !hayTexto;
+    b.classList.toggle('stop', esStop);
+    b.title = esStop ? 'Interrumpir a JARVIS' : 'Enviar';
+  }
+  window.wSetTrabajando = function (activo) {
+    _trabajandoBtn = !!activo;
+    _refrescarBotonEnviar();
+  };
+  _el('btnEnviar').addEventListener('click', () => {
+    // Se decide EN EL MOMENTO DEL CLIC (no de una variable vieja): si hay texto
+    // escrito, SIEMPRE se envia (y el bot lo ENCOLA); el rojo/interrumpir solo
+    // actua con la caja VACIA (orden 04/10/2026).
+    const inp = _el('wInput');
+    const hayTexto = !!(inp && inp.value && inp.value.trim().length > 0);
+    if (hayTexto) { _enviar(); return; }
+    if (_trabajandoBtn) {
+      const api = _api();
+      if (api && api.interrumpir) api.interrumpir();
+      window.wSetTrabajando(false);
+      return;
+    }
+    _enviar();
+  });
+  // Al teclear algo, el boton vuelve a "enviar" en vivo.
+  (function () {
+    const inp = _el('wInput');
+    if (inp) inp.addEventListener('input', _refrescarBotonEnviar);
+  })();
+  _el('wInput').addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter') { ev.preventDefault(); _enviar(); }
+  });
+  _el('wInput').addEventListener('focusin', () => {
+    const api = _api();
+    if (api && api.dar_foco) api.dar_foco();
+  });
+  // El icono del microfono se elimino (orden del jefe 04/10/2026): solo quedan
+  // la caja de texto y el boton de enviar. La voz ahora va por la esfera (llamada).
+
+  // El boton OJO se elimino (orden del jefe 04/10/2026): daba menos espacio a
+  // las ondas. La barra ahora reparte esfera - estado - ondas - ajustes.
+
+  window.addEventListener('pywebviewready', () => {
+    const api = _api();
+    // El tema primero: así la esfera aparece ya con el color elegido en vez
+    // de arrancar en cian y virar a la vista.
+    if (api && api.get_sphere_theme) {
+      api.get_sphere_theme().then((r) => {
+        if (r && r.ok && r.theme) window.wSetTema(r.theme);
+      }).catch(() => {});
+    }
+    if (api && api.estado) {
+      api.estado().then((r) => {
+        if (r && r.ok) {
+          window.wSetEstado(r.muted ? 'MUTED' : (r.estado || 'LISTENING'));
+          // El altavoz se SINCRONIZA con el estado real de Python al arrancar:
+          // si la voz guardada esta activada/desactivada, el boton lo refleja.
+          // Sin esto, el boton podia pintarse apagado mientras el backend
+          // seguia con la voz encendida (y JARVIS hablaba con el icono off).
+          if (typeof r.voz !== 'undefined') window.wSetVoz(r.voz);
+        }
+      });
+    }
+    // Efecto de aparición guardado (por defecto: "escribir").
+    window.wSetEfecto(_efectoActual);
+  });
+
+  // INICIALIZACION GARANTIZADA DEL EFECTO (fix 04/10/2026):
+  // Antes solo se hacia dentro de 'pywebviewready', que la app Android NUNCA
+  // dispara -> el efecto no arrancaba. Ahora se aplica SIEMPRE al cargar, en la
+  // app y en la PC. Por defecto "escribir"; si el jefe lo cambio, se respeta su
+  // eleccion guardada (persistente).
+  try { window.wEfectoPorDefecto(); } catch (e) {}
+  // Re-aplica al terminar de cargar el DOM (por si el script corre antes).
+  document.addEventListener('DOMContentLoaded', function () {
+    try { window.wEfectoPorDefecto(); } catch (e) {}
+  });
+</script>
+</body>
+</html>

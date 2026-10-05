@@ -28,7 +28,7 @@ RECETAS de la seccion 5. JARVIS tiene acceso TOTAL a todas las piezas.
 | Puente nube | `proyectos\jarvis_puente\puente.py` | Relay en Railway (app <-> PC). /ping, estado al conectar |
 | Live (Gemini) | `proyectos\jarvis_movil\live_jarvis.py` | Llamada de voz (Charon). VAD de Google, AGC, timeout del cerebro 60s |
 | Interfaz web | `proyectos\jarvis_movil\web\` (index.html, puente_web.js, live_web.js, temas_esfera.js, sw.js) | Toda la UI de la app: esfera, chat, onda, dictado, comentarios, visor, historial |
-| APK Android | `proyectos\jarvis_app\android\` (MainActivity.kt) | App nativa: WebView + dictado nativo + audio del live + guardar direccion |
+| App Android | `proyectos\jarvis_app\android\` (MainActivity.kt) + `jarvis_app\JARVIS-26.0-arm64.apk` | App nativa (v26.0): widget esfera/ondas/chat, llamada Gemini Live, dictado, sellos. EN EL KIT: carpeta `app/` con el APK + documentacion + codigo fuente |
 | APK compilada | `proyectos\jarvis_movil\JARVIS.apk` y `...\jarvis_puente\JARVIS.apk` | La que descarga el telefono (`/app.apk`) |
 | Widget de voz (PC) | `proyectos\widget_voz_jarvis\` | **ACTIVO** (18/09/2026): widget flotante + panel de config; cierre blindado (3 capas) y 1 sola instancia; el bot lo relanza al arrancar |
 | Cerebro/memoria | `C:\Users\wasc4\.config\opencode\agent\jarvis.md` + `memoria\` | Identidad, reglas y memorias |
@@ -40,6 +40,10 @@ RECETAS de la seccion 5. JARVIS tiene acceso TOTAL a todas las piezas.
 | Iconos / assets | `proyectos\assets\jarvis.ico/png` | Icono oficial (arc reactor) de bandeja, ventanas, lnk y widget. Receta: `manos\promover_icono_jarvis.ps1` |
 | Cambio de motor por orden | `manos\cambiar_modelo_jarvis.py` | Cambiar el modelo de JARVIS desde el chat (busca el ID por nombre flexible, lo prueba de verdad, guarda config como el panel; `--reiniciar` aplica; `--ver` muestra actual/anterior) |
 | Captura de pantalla | `manos\ver_pantalla.ps1` | Captura + OCR del escritorio (JSON). Herramienta de diagnostico visual |
+| Informe de la nube | `manos\informe_nube.py` (+ `manos\nube_config.json`) | Informe de los bots de Railway en ~2,5 s: estado, balance/profit, operativas, reinicios, avisos y deployment. Autodescubre proyectos (cambiable de cuenta). Opciones: `--horas/--servicio/--proyecto/--rapido/--json/--config`. Manual: skill `tool-nube` |
+| Bienestar (estado integral) | `manos\bienestar_jarvis.py` | Chequeo COMPLETO en ~0,3 s: instancias (dobles), puertos + zombis, red (OmniRoute/internet/IP), integridad (7 JSON, flags, log), CPU/RAM/disco, GPU (nvidia-smi) y errores del dia; veredicto "AL 100%" u obstruccion concreta. Opciones `--corto/--json/--sin-gpu`. Se autoejecuta con Python312 (el `python` del PATH no trae psutil). Manual: skill `tool-bienestar` |
+| Cerebro lite | `C:\Users\wasc4\.config\opencode\agent\jarvis-lite.md` | Version hipermega comprimida de JARVIS (~2 KB frente a 23,8 KB): identidad y reglas vivas sin el detalle largo. Aparece sola en Ajustes -> Cerebro -> "Cerebros del sistema" |
+| Kit portatil (otra PC) | repo GitHub `wascartrading/sistema-jarvis` | Copia autonoma de JARVIS para otra PC/USB: bot, cerebro, skills, OmniRoute y LA APP ANDROID (`app/`: APK + doc + fuente). Arranca con `INICIAR_JARVIS.bat` |
 
 ## 3. FLUJO DE UN MENSAJE (app)
 - EN CASA (WiFi): App -> servidor local (8090/ws) -> `_procesar` -> opencode (agente jarvis) -> COMBO via OmniRoute -> respuesta al chat.
@@ -333,6 +337,7 @@ RECETAS de la seccion 5. JARVIS tiene acceso TOTAL a todas las piezas.
 ## 7. LOGS Y DIAGNOSTICO
 - Servidor local: `jarvis_movil\servidor.log` | Agente: `jarvis_puente\agente.log` | Bot: `%TEMP%\opencode\jarvis_bot_out.log` | Vigilante: `%TEMP%\opencode\jarvis_vigilante.log` | Stream de pantalla: `jarvis_stream\stream.log`
 - Diagnostico general: `manos\diagnostico_jarvis.py`
+- Estado al instante (bienestar): `manos\bienestar_jarvis.py` (instancias, puertos, red, integridad, CPU/RAM/GPU; manual: skill `tool-bienestar`)
 - Puente: `https://jarvis-puente-production-eaeb.up.railway.app/ping` (pc_conectada / apps_conectadas)
 - **Logs rotados** (16/09/2026): cada reinicio guarda el log anterior en `proyectos\registro\logs\bot_salida_AAAAMMDD_HHMMSS.log` (nada se sobrescribe).
 
@@ -421,6 +426,24 @@ sobrescribe: si el bot se reinicia o muere, lo escrito queda.
     (seccion "Quien eres" en `agent\*.md`); el doctor conoce el sistema
     completo actualizado via `SISTEMA_JARVIS.md`.
 
+### COMBO Y MOTOR (20/09/2026 — verificado)
+14. COMBO JARVIS con SEGUNDA ENTRADA (orden del jefe: "pon a deepseek v4 flash de
+    opencode go"): el combo `1bce8a27-63d1-49c9-8df2-8387db6389c3` paso de 1 a 2
+    modelos, strategy `priority`:
+    `opencode-go/deepseek-v4.1-flash` (cuenta flow3) + `opencode-go/deepseek-v4-flash`
+    (cuenta flow3). Se aplica con `PUT /api/combos/<id>` (body: name, models,
+    strategy, config) sobre `http://127.0.0.1:20128`; verificar con `GET`.
+    Backup previo: `proyectos\registro\backups\combo_jarvis_backup_20260920_105049.json`.
+15. DIAGNOSTICO del 503 "Service temporarily unavailable: all upstream accounts
+    are inactive" (20/09/2026): lo lanza OmniRoute cuando TODAS las cuentas del
+    combo entran en cooldown (rate-limit del upstream "Console Go" de opencode-go);
+    se recupera solo en 1-2 min. Tambien lo provocan las llamadas MANUALES al
+    gateway sin las cabeceras de `opencode run` (`x-opencode-session`): primero
+    400/403 y despues el combo responde 503 a todos. MORALEJA: no probar el combo
+    con llamadas manuales; la prueba valida es `opencode run` o el propio bot.
+    Los registros viven en `C:\Users\wasc4\.omniroute\call_logs\AAAA-MM-DD\` y
+    `~\.omniroute\logs\application\app.log`.
+
 **Backups de la jornada**: `.bak_20260918_*` en `proyectos\` (bot: catalogo,
 ajustes unico, atajos, disponibles) y `widget.py.bak_20260918_doctor_blindaje`.
 
@@ -431,3 +454,100 @@ ajustes unico, atajos, disponibles) y `widget.py.bak_20260918_doctor_blindaje`.
 - "Disponibles" no responde: comprobar OmniRoute (HTTP 200 en `127.0.0.1:20128/v1/models`).
 - Modelo sin respuesta: "⚡ Probar" individual; al guardar, la validacion avisa y no aplica.
 - Verificacion GLOBAL: `python "manos\diagnostico_jarvis.py"`.
+- Estado en 1 segundo: `python "manos\bienestar_jarvis.py"` (veredicto + avisos).
+- VISION/CAPTURAS no ven nada (20/09/2026): invocar SIEMPRE con `py -3.12` — el `python`
+  del PATH (3.14 Store) no tiene PIL y da `ModuleNotFoundError: No module named 'PIL'`.
+  Si el PNG sale NEGRO (brillo 0.0 / desviacion 0.0 con `ImageStat`) la pantalla esta en
+  reposo/apagada: encenderla o pulsar una tecla (el software no la despierta siempre).
+- PANTALLA EN REPOSO / capturas negras (20/09/2026, verificado en vivo): herramienta propia
+  `manos\despertar_pantalla.py` (`--estado` diagnostico, `--probar`/`--ciclo` pruebas, sin
+  args = cascada que despierta). FUNCIONA mandando input real (raton `SendInput`/`mouse_event`
+  relativo o una tecla) y ESPERANDO 3-15 s (el compositor tarda en volver; medir a los 2 s
+  engana). El protector `.scr` se cierra solo con input; refuerzo `taskkill /IM scrnsave.scr /F`.
+  NO sirven en este equipo: `SC_MONITORPOWER` (+-1), `SPI_SETSCREENSAVERRUNNING`,
+  `ES_DISPLAY_REQUIRED`, `WM_CLOSE` al protector. Protector configurado: Ribbons.scr, 900 s.
+  Estado de reposo = `screensaver_spi=true` + input viejo + `GetForegroundWindow()=0` + grab failed.
+- CONTROL HUMANO raton+teclado+vision (20/09/2026, verificado en vivo): receta completa en la
+  skill `tool-control-humano`. Claves: `hotkey lwin` NO abre Inicio (clic real en 33,743);
+  clic dentro del rect de la ventana (`left+220`, centro) + `text_input escribir`; y SIEMPRE
+  verificar con `vision ver "transcribe literalmente..."` (un modal inesperado, p.ej. WinRAR,
+  roba el foco y el texto se pierde sin error). Bloc de notas de Win11 = pestañas: `alt+f4`
+  cierra la pestaña (queda en blanco), para cerrarlo de verdad `taskkill /PID <pid> /F`.
+- WEB DE LA TIENDA EN LA NUBE (20/09/2026): "La Mática Sport" (Los Alcarrizos) publicada en el
+  servicio **ESPACIO PARA WEDS** del proyecto `jarvis-puente` →
+  **https://jarvis-puente-production-eaeb.up.railway.app** · código en
+  `proyectos\landing_lamatica_sport\` (index.html + assets + server.py + Procfile) ·
+  para actualizarla: `railway link --project c402d85c-... --environment 90777b5b-... --service
+  5d915da7-...` y `railway up --detach` desde esa carpeta (el link tarda ~30 s en responder 200).
+- LOGO DE LA TIENDA (20/09/2026): recreado desde su foto de perfil de Instagram con
+  `manos\crear_logo.py` (anillo degradado amarillo→naranja→rojo→magenta→púrpura, interior
+  negro, "La Matica" en script rojo con brillo y "sport" en sans blanca). Salidas en
+  `proyectos\landing_lamatica_sport\assets\img\`: `logo-la-matica.png` (512), `favicon-192.png`,
+  `favicon-32.png` y `logo-original-instagram.png` (la foto real de referencia). Ya está en la
+  cabecera y el pie de la web y como favicon.
+- CACHE BUSTING EN LA WEB (20/09/2026): los assets se piden con versión (`styles.css?v=...`,
+  `app.js?v=...`) y el HTML se sirve `no-store`; **al cambiar CSS/JS hay que subir la versión en
+  `index.html`** o el navegador del cliente seguirá viendo lo viejo (fue lo que le pasó al jefe
+  en el celular: veía las tarjetas sin fotos).
+- LECCIÓN (20/09/2026): todo script propio que imprima texto de la visión debe forzar UTF-8
+  (`sys.stdout.reconfigure(encoding="utf-8", errors="replace")`); el cp1252 de Windows revienta
+  con los emojis. Y `Start-Process` oculto con python muere si el script imprime sin consola
+  (blindar los `print` con try/except, como en `landing_lamatica_sport\server.py`).
+- HERRAMIENTAS NUEVAS (20/09/2026, todas en `manos\`): `despertar_pantalla.py` (despierta el
+  monitor/protector del reposo), `ventana_movil.py` (pone una ventana en tamaño celular para
+  verificar responsive) y `cap_ventana.py` (captura UNA ventana y la analiza con la visión).
+- REGLA UN SOLO VIDEO EN YOUTUBE (20/09/2026, orden del jefe): nunca dejar un video sonando
+  cuando se pone otro. Antes de abrir uno nuevo se limpian las pestañas de YouTube con
+  `manos\pestanas_navegador.py limpiar` (Ctrl+W en bucle leyendo el título de la ventana;
+  `estado` para consultar, ~0,3 s, sin visión) y solo entonces `browser youtube "..."`.
+- FIX (20/09/2026): `herramientas_control\cli.py` fuerza salida UTF-8 — antes un título de
+  ventana con emoji (p. ej. una pestaña de Brave) tumbaba el CLI con `UnicodeEncodeError`.
+
+## 10. ARRANQUE BLINDADO DE JARVIS (30/09/2026, orden del jefe)
+
+**Qué pasó (medido, no supuesto):** el 30/09/2026 la PC encendió a las 21:05:43. El primer
+arranque automático fue a las 21:06 y **murió al instante**: el DNS aún no estaba listo y el bot
+soltó `getaddrinfo failed` con su propio mensaje "Network Retry Loop (Bootstrap Initialize
+Application): Failed run number 0 of 0. Aborting" → **cero reintentos**. El mismo cuadro a las
+07:28 de esa mañana. El bot bueno entró a las 21:09 por casualidad, no por diseño.
+Además la tarea "JARVIS Vigilante" tenía `StartWhenAvailable=False` (si se perdía el arranque
+programado no se recuperaba nunca) y `DisallowStartIfOnBatteries=True` (se apagaba en cuanto el
+equipo fuera a batería).
+
+**Cómo quedó** (regla del jefe: si no hay Internet no arranca, pero sigue intentándolo solo y
+entra en cuanto vuelve, en silencio):
+
+- `manos\red_jarvis.ps1` — piezas compartidas: `Test-JarvisHayInternet` (DNS de
+  `api.telegram.org` + conexión TCP real al 443, ~250 ms), `Write-JarvisArranque` (log silencioso
+  en `proyectos\registro\logs\arranque_jarvis.log`) y `Repair-JarvisPuenteAdmin`.
+  Modo laboratorio: `$env:JARVIS_RED_SIMULADA='sin'|'con'`.
+- `manos\esperar_internet_jarvis.ps1` — el esperador: sin red reintenta con pausas crecientes
+  (10-15-30-60 s) hasta 15 min; en cuanto hay red lanza JARVIS y **comprueba que quedó vivo**; si
+  se agota el tope se retira sin dejar procesos (el vigilante sigue con su ciclo cada 2 min).
+- `manos\lanzar_jarvis_telegram.ps1` — guarda de red al principio: sin Internet NO mata
+  instancias, NO arranca OmniRoute y NO lanza el bot (antes el bot moría y dejaba 15 KB de
+  errores); deja el esperador en segundo plano y sale. Parámetros: `-YaHayInternet` (lo usa el
+  esperador), `$env:JARVIS_LAB=1` (no lanza el esperador) y `$env:JARVIS_LAB_DRY=1` (ensayo).
+- `manos\vigilar_jarvis.ps1` — carga el comprobador: si no hay red NO relanza nada (lo hace el
+  esperador) y repone el puente de administrador en cada pasada.
+- Tarea programada **JARVIS Vigilante** (ajustada con admin, `manos\blindar_tarea_vigilante.ps1`):
+  `StartWhenAvailable=True`, `DisallowStartIfOnBatteries=False`, `StopIfGoingOnBatteries=False`,
+  repetición **cada 2 min** y un disparador **al iniciar sesión**.
+- Arranque con Windows, UN SOLO camino: la carpeta Inicio (`JARVIS.lnk` → `wscript.exe`
+  `manos\arranque_jarvis.vbs`, cero ventanas) y `HKCU\...\Run\JARVIS` apuntan los dos al lanzador
+  oficial. `proyectos\autostart_jarvis.ps1` ya no tiene lógica propia: es un puente (antes
+  lanzaba con `python.exe` y asomaba una consola).
+- Simulacro: `proyectos\registro\prueba_arranque_blindado_20260930.ps1` → **15 en verde, 0 en
+  rojo** (sin red no lanza ni mata; con red pasa la guarda; el bucle reintenta; el bot que
+  responde al jefe queda intacto).
+
+**Recetas de auto-reparación nuevas:**
+- "JARVIS no arrancó al encender": leer `registro\logs\arranque_jarvis.log` (dice si había red,
+  los intentos y el resultado). Si aparece `esperador:` y "se agotó el tope", la red tardó más de
+  15 min: llamar al esperador a mano o confiar en el vigilante (cada 2 min).
+- "Acceso denegado / timeout al elevar" (30/09/2026): faltaba `%TEMP%\opencode\admin_bridge.ps1`
+  porque la carpeta temporal se limpia. Ahora el vigilante lo repone solo; para forzarlo,
+  ejecutar `manos\vigilar_jarvis.ps1`.
+- Comprobar la red al instante: `powershell -File "manos\red_jarvis.ps1"` → SI / NO.
+- Cambiar los minutos de espera: parámetro `-MinutosMax` del esperador.
+- Deshacer los ajustes de la tarea: XML de respaldo `manos\tarea_vigilante_respaldo_AAAAMMDD_HHMMSS.xml`.

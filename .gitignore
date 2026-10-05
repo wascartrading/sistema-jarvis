@@ -45,3 +45,6 @@ temp_repo/
 # 09/09/2026: entorno local con clave de cifrado
 .env
 omniroute/data/.env
+
+# 05/10/2026: excepcion para los iconos de la app Android (necesarios para recompilar)
+!app/fuente/app/src/main/res/**/*.png
